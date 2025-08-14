@@ -7,7 +7,7 @@ A TypeScript-based MCP (Model Context Protocol) server that provides tools to fe
 - [Features](#features)
 - [Prerequisites](#prerequisites)
   - [Create a Service Principal](#1-create-a-service-principal)
-  - [Grant Monitoring Reader Permissions](#2-grant-monitoring-reader-permissions)
+  - [Grant Log Analytics Reader Permissions](#2-grant-log-analytics-reader-permissions)
   - [Get Log Analytics Workspace ID](#3-get-log-analytics-workspace-id)
 - [Configuration](#configuration)
 - [Installation](#installation)
@@ -71,19 +71,19 @@ Before using this application, you need to set up the following in Azure:
 10. Add a description and set expiration
 11. Click **Add** and copy the **Value** (this is your client secret)
 
-### 2. Grant Monitoring Reader Permissions
+### 2. Grant Log Analytics Reader Permissions
 
 1. Navigate to your **Log Analytics Workspace** resource in the Azure Portal
 2. Go to **Access control (IAM)**
 3. Click **Add** > **Add role assignment**
-4. Select **Monitoring Reader** role
+4. Select **Log Analytics Reader** role
 5. In the **Members** tab, search for and select your Service Principal
 6. Click **Review + assign**
 
 ### 3. Get Log Analytics Workspace ID
 
 1. Navigate to your **Log Analytics Workspace** resource
-2. Go to **Properties**
+2. Go to **Overview**
 3. Copy the **Workspace ID** (this will be used as `AZURE_MONITOR_WORKSPACE_ID`)
 
 ## Configuration
