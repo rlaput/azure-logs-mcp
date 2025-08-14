@@ -1,5 +1,27 @@
 # Azure Logs MCP Server - Implementation Guide
 
+## Table of Contents
+
+- [Server Implementations](#-server-implementations)
+  - [Stdio Server (`src/index.ts`)](#1--stdio-server-srcindexts)
+  - [HTTP Server (`src/sse-server.ts`)](#2--http-server-srcsse-serverts--recommended-for-web)
+- [Key Features Implemented](#-key-features-implemented)
+  - [Enhanced Rate Limiting](#1--enhanced-rate-limiting)
+  - [Modern MCP API](#2--modern-mcp-api)
+  - [Security Enhancements](#3--security-enhancements)
+  - [Protocol Compliance](#4--protocol-compliance)
+- [Comparison Matrix](#-comparison-matrix)
+- [Security Features](#-security-features)
+- [Containerization](#-containerization)
+- [Performance Optimizations](#-performance-optimizations)
+- [Future Enhancements](#-future-enhancements)
+- [Development Workflow](#-development-workflow)
+- [Recommendations](#-recommendations)
+- [Quick Start](#-quick-start)
+  - [CLI Integration](#cli-integration)
+  - [Web Integration](#web-integration)
+  - [Container Deployment](#container-deployment)
+
 ## 🚀 **Server Implementations**
 
 This project provides **two MCP server implementations** for different deployment scenarios:

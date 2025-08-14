@@ -2,6 +2,36 @@
 
 This document outlines how the Azure Logs MCP project adheres to the Open Container Initiative (OCI) specifications and supports multiple container runtimes.
 
+## Table of Contents
+
+- [OCI Standards Compliance](#oci-standards-compliance)
+  - [Image Specification](#image-specification)
+  - [Runtime Specification](#runtime-specification)
+  - [Distribution Specification](#distribution-specification)
+- [Supported Container Runtimes](#supported-container-runtimes)
+  - [Primary Support](#primary-support)
+  - [Additional OCI Runtimes](#additional-oci-runtimes)
+- [File Structure](#file-structure)
+- [OCI Labels](#oci-labels)
+- [Runtime Verification](#runtime-verification)
+  - [Verify OCI Compliance](#verify-oci-compliance)
+  - [Registry Compatibility](#registry-compatibility)
+- [Security Features](#security-features)
+  - [Rootless Execution](#rootless-execution)
+  - [Minimal Attack Surface](#minimal-attack-surface)
+  - [Resource Constraints](#resource-constraints)
+- [Migration from Docker](#migration-from-docker)
+  - [For Existing Docker Users](#for-existing-docker-users)
+  - [Advantages of Podman](#advantages-of-podman)
+- [Best Practices](#best-practices)
+  - [Build Optimization](#build-optimization)
+  - [Security](#security)
+  - [Portability](#portability)
+- [Troubleshooting](#troubleshooting)
+  - [Common Issues](#common-issues)
+- [Validation Checklist](#validation-checklist)
+- [References](#references)
+
 ## OCI Standards Compliance
 
 ### Image Specification

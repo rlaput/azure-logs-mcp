@@ -2,6 +2,46 @@
 
 A TypeScript-based MCP (Model Context Protocol) server that provides tools to fetch logs from Azure Application Insights based on order numbers. This service queries Azure Monitor logs using the Azure SDK and exposes the functionality through MCP tools for use with compatible clients.
 
+## Table of Contents
+
+- [Features](#features)
+- [Prerequisites](#prerequisites)
+  - [Create a Service Principal](#1-create-a-service-principal)
+  - [Grant Monitoring Reader Permissions](#2-grant-monitoring-reader-permissions)
+  - [Get Application Insights Workspace ID](#3-get-application-insights-workspace-id)
+- [Configuration](#configuration)
+- [Installation](#installation)
+- [Development](#development)
+  - [Building the Project](#building-the-project)
+  - [Development Mode](#development-mode)
+  - [Production Mode](#production-mode)
+  - [Code Quality](#code-quality)
+- [Container Deployment](#container-deployment)
+  - [Quick Start with Podman (Recommended)](#quick-start-with-podman-recommended)
+  - [Quick Start with Docker](#quick-start-with-docker)
+  - [OCI Compliance](#oci-compliance)
+  - [Transport Modes](#transport-modes)
+- [MCP Server Usage](#mcp-server-usage)
+  - [Server Connection](#server-connection)
+  - [Available Tools](#available-tools)
+    - [getLogsByOrderNumber](#getlogsbyordernumber)
+- [Error Handling](#error-handling)
+  - [Error Types](#error-types)
+  - [Security](#security)
+- [Dependencies](#dependencies)
+  - [Runtime Dependencies](#runtime-dependencies)
+  - [Development Dependencies](#development-dependencies)
+- [Project Structure](#project-structure)
+- [Environment Variables](#environment-variables)
+  - [Required Variables](#required-variables)
+  - [Optional Variables](#optional-variables)
+- [Health Checks](#health-checks)
+- [Logging](#logging)
+- [Container Support](#container-support)
+  - [Available Scripts](#available-scripts)
+  - [SSE Mode Features](#sse-mode-features)
+  - [Container Configuration](#container-configuration)
+
 ## Features
 
 - 🔒 **Security**: Input validation, sanitization, and rate limiting

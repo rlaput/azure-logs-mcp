@@ -2,6 +2,53 @@
 
 This guide covers containerization and deployment strategies for the Azure Logs MCP server with full OCI (Open Container Initiative) compliance and support for both Docker and Podman.
 
+## Table of Contents
+
+- [Container Support](#container-support)
+- [OCI Compliance](#oci-compliance)
+- [Quick Start with Podman (Recommended)](#quick-start-with-podman-recommended)
+  - [Build the Container](#1-build-the-container)
+  - [Run with Podman](#2-run-with-podman)
+- [Quick Start with Docker](#quick-start-with-docker)
+  - [Build the Container](#1-build-the-container-1)
+  - [Run with Docker](#2-run-with-docker-1)
+- [Environment Configuration](#environment-configuration)
+  - [Required Variables](#required-variables)
+  - [Container-Specific Variables](#container-specific-variables)
+- [Transport Modes](#transport-modes)
+  - [SSE (Server-Sent Events) Mode](#sse-server-sent-events-mode)
+  - [stdio Mode](#stdio-mode)
+- [Container Runtime Comparison](#container-runtime-comparison)
+- [Podman-Specific Features](#podman-specific-features)
+  - [Rootless Containers](#rootless-containers)
+  - [Pod Management](#pod-management)
+  - [Systemd Integration](#systemd-integration)
+  - [Container Registry Support](#container-registry-support)
+- [Cloud Deployment](#cloud-deployment)
+  - [Azure Container Apps](#azure-container-apps)
+  - [Docker Hub Deployment](#docker-hub-deployment)
+- [Health Monitoring](#health-monitoring)
+  - [Health Check Endpoint (SSE Mode)](#health-check-endpoint-sse-mode)
+  - [Docker Health Checks](#docker-health-checks)
+- [Security Considerations](#security-considerations)
+  - [Container Security](#container-security)
+  - [Network Security](#network-security)
+- [Troubleshooting](#troubleshooting)
+  - [Common Issues](#common-issues)
+  - [Debugging Commands](#debugging-commands)
+- [Performance Optimization](#performance-optimization)
+  - [Container Optimization](#container-optimization)
+  - [Runtime Optimization](#runtime-optimization)
+- [Monitoring and Logging](#monitoring-and-logging)
+  - [Structured Logging](#structured-logging)
+  - [Log Levels](#log-levels)
+  - [Container Logs](#container-logs)
+- [Integration Examples](#integration-examples)
+  - [MCP Inspector (Development)](#mcp-inspector-development)
+  - [GitHub Copilot Integration](#github-copilot-integration)
+  - [Custom Client Integration](#custom-client-integration)
+- [Next Steps](#next-steps)
+
 ## Container Support
 
 The Azure Logs MCP server supports two transport modes:
