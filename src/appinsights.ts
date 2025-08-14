@@ -91,11 +91,11 @@ function validateEnvironment(env: Record<string, string | undefined>): Environme
 function createKustoQuery(sanitizedOrderNumber: string): string {
   return `
     let searchTerm = "${sanitizedOrderNumber}";
-    union isfuzzy=true requests
-    | where timestamp >= ago(30d)
-    | where url contains searchTerm or tostring(customDimensions) contains searchTerm or name contains searchTerm
-    | project timestamp, name, url, resultCode, duration, customDimensions
-    | order by timestamp desc
+    union isfuzzy=true AppRequests
+    | where TimeGenerated >= ago(30d)
+    | where Url contains searchTerm or tostring(Properties) contains searchTerm or Name contains searchTerm
+    | project TimeGenerated, Name, Url, ResultCode, DurationMs, Properties
+    | order by TimeGenerated desc
     | limit 100
   `;
 }
