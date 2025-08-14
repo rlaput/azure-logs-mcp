@@ -10,6 +10,8 @@ A TypeScript-based MCP (Model Context Protocol) server that provides tools to fe
 - 📊 **Logging**: Structured logging with configurable levels
 - 🛡️ **Validation**: Comprehensive input validation using Zod schemas
 - ⚡ **Rate Limiting**: Built-in protection against API abuse
+- 🐳 **OCI Compliant**: Full Open Container Initiative compliance with Docker and Podman support
+- 🔧 **Multi-Runtime**: Works with Docker, Podman, and any OCI-compatible container runtime
 
 ## Prerequisites
 
@@ -115,18 +117,39 @@ npm run clean
 
 ## Container Deployment
 
-This MCP server supports containerization with Docker and includes both stdio and SSE transport modes.
+This MCP server is fully **OCI-compliant** and supports multiple container runtimes including Docker, Podman, and any OCI-compatible runtime. Both stdio and SSE transport modes are supported.
+
+### Quick Start with Podman (Recommended)
+
+```bash
+# Build and run with Podman
+npm run container:build
+npm run container:run
+
+# Or manually
+podman build -f Containerfile -t azure-logs-mcp .
+podman run --env-file .env -p 3000:3000 azure-logs-mcp
+```
 
 ### Quick Start with Docker
 
 ```bash
-# Build and run with Docker Compose
-npm run docker:compose
-
-# Or build and run manually
+# Build and run with Docker
 npm run docker:build
 npm run docker:run
+
+# Or manually
+docker build -f Containerfile -t azure-logs-mcp .
+docker run --env-file .env -p 3000:3000 azure-logs-mcp
 ```
+
+### OCI Compliance
+
+This project follows Open Container Initiative standards:
+- ✅ **Multi-runtime support**: Docker, Podman, Buildah, CRI-O, containerd
+- ✅ **Rootless containers**: Enhanced security with Podman
+- ✅ **OCI labels**: Proper metadata and annotations
+- ✅ **Standard formats**: Containerfile and Dockerfile support
 
 ### Transport Modes
 
@@ -134,14 +157,17 @@ npm run docker:run
 - **SSE mode**: Web-based transport for browser clients and remote connections
 
 ```bash
-# Run SSE mode (web server on port 3000)
-docker run --env-file .env -e TRANSPORT_MODE=sse -p 3000:3000 azure-logs-mcp
+# Podman examples
+podman run --env-file .env -e TRANSPORT_MODE=sse -p 3000:3000 azure-logs-mcp
+podman run --env-file .env -e TRANSPORT_MODE=stdio azure-logs-mcp
 
-# Run stdio mode (direct process communication)
+# Docker examples
+docker run --env-file .env -e TRANSPORT_MODE=sse -p 3000:3000 azure-logs-mcp
 docker run --env-file .env -e TRANSPORT_MODE=stdio azure-logs-mcp
 ```
 
 For detailed deployment instructions, see [DEPLOYMENT.md](DEPLOYMENT.md).
+For OCI compliance details, see [OCI-COMPLIANCE.md](OCI-COMPLIANCE.md).
 
 ## MCP Server Usage
 
@@ -326,10 +352,17 @@ npm run dev:sse      # Run SSE mode in development
 npm run start        # Run stdio mode in production
 npm run start:sse    # Run SSE mode in production
 
-# Docker
+# Container (OCI-compliant, works with any runtime)
+npm run container:build    # Build with Podman (recommended)
+npm run container:run      # Run with Podman
+
+# Docker (traditional)
 npm run docker:build    # Build Docker image
 npm run docker:run      # Run container with .env file
-npm run docker:compose  # Run with docker-compose
+
+# Podman (explicit)
+npm run podman:build    # Build with Podman
+npm run podman:run      # Run with Podman
 ```
 
 ### SSE Mode Features

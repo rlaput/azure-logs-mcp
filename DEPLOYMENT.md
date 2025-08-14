@@ -1,6 +1,6 @@
 # Azure Logs MCP - Deployment Guide
 
-This guide covers containerization and deployment strategies for the Azure Logs MCP server.
+This guide covers containerization and deployment strategies for the Azure Logs MCP server with full OCI (Open Container Initiative) compliance and support for both Docker and Podman.
 
 ## Container Support
 
@@ -8,6 +8,52 @@ The Azure Logs MCP server supports two transport modes:
 
 1. **stdio** - Standard MCP protocol for direct client connections
 2. **SSE (Server-Sent Events)** - Web-based transport for browser clients and remote connections
+
+## OCI Compliance
+
+This project is fully OCI-compliant and supports multiple container runtimes:
+
+- **Docker** - Traditional container runtime
+- **Podman** - Daemonless, rootless container engine
+- **Any OCI-compatible runtime** - Buildah, CRI-O, containerd, etc.
+
+## Quick Start with Podman (Recommended)
+
+### 1. Build the Container
+
+```bash
+# Build with Podman using Containerfile
+npm run container:build
+
+# Or manually
+podman build -f Containerfile -t azure-logs-mcp .
+```
+
+### 2. Run with Podman
+
+```bash
+# Run SSE mode (default)
+npm run container:run
+
+# Or manually with environment file
+podman run --env-file .env -p 3000:3000 azure-logs-mcp
+
+# Run stdio mode
+podman run --env-file .env -e TRANSPORT_MODE=stdio azure-logs-mcp
+```
+
+### 3. Run with Podman
+
+```bash
+# Run in foreground
+npm run podman:run
+
+# Or run in background (detached)
+podman run --env-file .env -p 3000:3000 -d --name azure-logs-mcp azure-logs-mcp
+
+# Stop and remove container
+podman stop azure-logs-mcp && podman rm azure-logs-mcp
+```
 
 ## Quick Start with Docker
 
@@ -18,7 +64,7 @@ The Azure Logs MCP server supports two transport modes:
 npm run docker:build
 
 # Or manually
-docker build -t azure-logs-mcp .
+docker build -f Containerfile -t azure-logs-mcp .
 ```
 
 ### 2. Run with Docker
@@ -34,17 +80,17 @@ docker run --env-file .env -p 3000:3000 azure-logs-mcp
 docker run --env-file .env -e TRANSPORT_MODE=stdio azure-logs-mcp
 ```
 
-### 3. Run with Docker Compose
+### 3. Run with Docker
 
 ```bash
-# Start all services
-npm run docker:compose
+# Run in foreground
+npm run docker:run
 
-# Or manually
-docker-compose up --build
+# Or run in background (detached)
+docker run --env-file .env -p 3000:3000 -d --name azure-logs-mcp azure-logs-mcp
 
-# Run with development profile (includes MCP Inspector)
-docker-compose --profile dev up --build
+# Stop and remove container
+docker stop azure-logs-mcp && docker rm azure-logs-mcp
 ```
 
 ## Environment Configuration
@@ -126,6 +172,73 @@ npm run start
 
 # Docker
 docker run -e TRANSPORT_MODE=stdio azure-logs-mcp
+```
+
+## Container Runtime Comparison
+
+| Feature | Docker | Podman | Notes |
+|---------|--------|--------|-------|
+| Daemon | Required | Daemonless | Podman runs without a background daemon |
+| Root Access | Required | Optional | Podman can run rootless containers |
+| OCI Compliance | Yes | Yes | Both fully support OCI standards |
+| Build Files | Containerfile | Containerfile | Both use the same OCI-standard Containerfile |
+| Multi-container | docker-compose | podman pod | Different approaches for orchestration |
+
+## Podman-Specific Features
+
+### Rootless Containers
+
+```bash
+# Run as non-root user (Podman default)
+podman run --env-file .env -p 3000:3000 azure-logs-mcp
+
+# Explicitly run rootless
+podman run --user 1001:1001 --env-file .env -p 3000:3000 azure-logs-mcp
+
+# Check if running rootless
+podman info --format "{{.Host.Security.Rootless}}"
+```
+
+### Pod Management
+
+```bash
+# Create a pod for related containers
+podman pod create --name mcp-pod -p 3000:3000
+
+# Run container in the pod
+podman run --pod mcp-pod --env-file .env azure-logs-mcp
+
+# List pods
+podman pod ls
+
+# Stop and remove pod
+podman pod stop mcp-pod
+podman pod rm mcp-pod
+```
+
+### Systemd Integration
+
+```bash
+# Generate systemd service files
+podman generate systemd --new --files --name azure-logs-mcp
+
+# Enable and start service (user mode)
+systemctl --user enable container-azure-logs-mcp.service
+systemctl --user start container-azure-logs-mcp.service
+
+# Check service status
+systemctl --user status container-azure-logs-mcp.service
+```
+
+### Container Registry Support
+
+```bash
+# Push to any OCI-compliant registry
+podman build -f Containerfile -t quay.io/your-username/azure-logs-mcp .
+podman push quay.io/your-username/azure-logs-mcp
+
+# Pull and run from registry
+podman run --env-file .env -p 3000:3000 quay.io/your-username/azure-logs-mcp
 ```
 
 ## Cloud Deployment
@@ -243,6 +356,7 @@ docker inspect <container-id>
 
 ### Debugging Commands
 
+#### Docker Commands
 ```bash
 # View container logs
 docker logs <container-id>
@@ -253,8 +367,37 @@ docker exec -it <container-id> sh
 # Check environment variables
 docker exec <container-id> env
 
+# Check container health
+docker ps
+docker inspect <container-id>
+```
+
+#### Podman Commands
+```bash
+# View container logs
+podman logs <container-id>
+
+# Execute shell in container
+podman exec -it <container-id> sh
+
+# Check environment variables
+podman exec <container-id> env
+
+# Check container health
+podman ps
+podman inspect <container-id>
+
+# Check rootless status
+podman info --format "{{.Host.Security.Rootless}}"
+```
+
+#### Universal Commands
+```bash
 # Test health endpoint
 curl -f http://localhost:3000/health || echo "Health check failed"
+
+# Check port accessibility
+netstat -tlnp | grep 3000
 ```
 
 ## Performance Optimization

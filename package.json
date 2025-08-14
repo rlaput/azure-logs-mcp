@@ -12,9 +12,12 @@
     "type-check": "tsc --noEmit",
     "lint": "eslint src --ext .ts --fix",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "docker:build": "docker build -t azure-logs-mcp .",
+    "container:build": "podman build -f Containerfile -t azure-logs-mcp .",
+    "container:run": "podman run --env-file .env -p 3000:3000 azure-logs-mcp",
+    "docker:build": "docker build -f Containerfile -t azure-logs-mcp .",
     "docker:run": "docker run --env-file .env -p 3000:3000 azure-logs-mcp",
-    "docker:compose": "docker-compose up --build"
+    "podman:build": "podman build -f Containerfile -t azure-logs-mcp .",
+    "podman:run": "podman run --env-file .env -p 3000:3000 azure-logs-mcp"
   },
   "keywords": ["mcp", "azure", "logs", "application-insights"],
   "author": "",
