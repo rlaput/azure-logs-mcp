@@ -23,7 +23,7 @@ function sanitizeInput(input: string): string {
   
   // Remove or escape potentially dangerous characters
   // Allow alphanumeric, hyphens, underscores, and basic punctuation
-  const sanitized = input.replace(/[^\w\-_.]/g, '');
+  const sanitized = input.replace(/[^\w\-.]/g, '');
   
   if (sanitized.length === 0) {
     throw new ValidationErrorClass('Invalid order number format');
