@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  azure-logs-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: azure-logs-mcp
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - LOG_LEVEL=2
+    env_file:
+      - .env
+    volumes:
+      # Mount logs directory for persistent logging (optional)
+      - ./logs:/app/logs
+    ports:
+      # Expose port for potential SSE transport or health checks
+      - "3000:3000"
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('./dist/appinsights').healthCheck().then(() => process.exit(0)).catch(() => process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - mcp-network
+
+  # Optional: Add a simple web interface for testing (development only)
+  mcp-inspector:
+    image: node:20-alpine
+    container_name: mcp-inspector
+    profiles:
+      - dev
+    working_dir: /app
+    command: npx @modelcontextprotocol/inspector
+    ports:
+      - "5173:5173"
+    environment:
+      - NODE_ENV=development
+    networks:
+      - mcp-network
+    depends_on:
+      - azure-logs-mcp
+
+networks:
+  mcp-network:
+    driver: bridge
+
+volumes:
+  logs:
+    driver: local

@@ -113,6 +113,36 @@ Clean build artifacts:
 npm run clean
 ```
 
+## Container Deployment
+
+This MCP server supports containerization with Docker and includes both stdio and SSE transport modes.
+
+### Quick Start with Docker
+
+```bash
+# Build and run with Docker Compose
+npm run docker:compose
+
+# Or build and run manually
+npm run docker:build
+npm run docker:run
+```
+
+### Transport Modes
+
+- **stdio mode** (default): Traditional MCP protocol for direct connections
+- **SSE mode**: Web-based transport for browser clients and remote connections
+
+```bash
+# Run SSE mode (web server on port 3000)
+docker run --env-file .env -e TRANSPORT_MODE=sse -p 3000:3000 azure-logs-mcp
+
+# Run stdio mode (direct process communication)
+docker run --env-file .env -e TRANSPORT_MODE=stdio azure-logs-mcp
+```
+
+For detailed deployment instructions, see [DEPLOYMENT.md](DEPLOYMENT.md).
+
 ## MCP Server Usage
 
 ### Server Connection
@@ -282,3 +312,41 @@ Log levels:
 - `1` = WARN: Warnings and errors
 - `2` = INFO: General information, warnings, and errors (default for production)
 - `3` = DEBUG: All messages including debug information (default for development)
+
+## Container Support
+
+### Available Scripts
+
+```bash
+# Development
+npm run dev          # Run stdio mode in development
+npm run dev:sse      # Run SSE mode in development
+
+# Production
+npm run start        # Run stdio mode in production
+npm run start:sse    # Run SSE mode in production
+
+# Docker
+npm run docker:build    # Build Docker image
+npm run docker:run      # Run container with .env file
+npm run docker:compose  # Run with docker-compose
+```
+
+### SSE Mode Features
+
+When running in SSE mode, the server provides:
+
+- **SSE Endpoint**: `GET /sse` - MCP Server-Sent Events endpoint
+- **Health Check**: `GET /health` - Service health verification
+- **CORS Support**: Configurable cross-origin resource sharing
+- **Web Integration**: Compatible with browser-based MCP clients
+
+### Container Configuration
+
+Additional environment variables for containerized deployments:
+
+- `PORT`: Server port (default: 3000)
+- `TRANSPORT_MODE`: 'sse' or 'stdio' (default: sse)
+- `CORS_ORIGIN`: Allowed CORS origins (default: *)
+
+For comprehensive deployment guidance, see [DEPLOYMENT.md](DEPLOYMENT.md).

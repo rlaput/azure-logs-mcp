@@ -11,7 +11,7 @@ interface RateLimitEntry {
 /**
  * Simple rate limiter implementation
  */
-class RateLimiter {
+export class RateLimiter {
   private limits = new Map<string, RateLimitEntry>();
   private readonly maxRequests: number;
   private readonly windowMs: number;
@@ -19,6 +19,25 @@ class RateLimiter {
   constructor(maxRequests = 10, windowMs = 60000) { // 10 requests per minute by default
     this.maxRequests = maxRequests;
     this.windowMs = windowMs;
+  }
+
+  /**
+   * Extract client identifier from request context
+   * @param req - Express request object or similar context
+   * @returns Unique client identifier
+   */
+  static extractClientId(req?: { headers?: Record<string, string | string[] | undefined>; ip?: string; socket?: { remoteAddress?: string } }): string {
+    if (!req) {return 'default';}
+    
+    // Try to get client ID from headers first
+    const clientIdHeader = req.headers?.['x-client-id'] || req.headers?.['mcp-client-id'];
+    if (clientIdHeader && typeof clientIdHeader === 'string') {
+      return clientIdHeader;
+    }
+    
+    // Fall back to IP address
+    const ip = req.ip || req.socket?.remoteAddress || 'unknown';
+    return `ip:${ip}`;
   }
 
   /**
