@@ -19,13 +19,18 @@
     "podman:build": "podman build -f Containerfile -t azure-logs-mcp .",
     "podman:run": "podman run --env-file .env -p 3000:3000 azure-logs-mcp"
   },
-  "keywords": ["mcp", "azure", "logs", "application-insights"],
+  "keywords": [
+    "mcp",
+    "azure",
+    "logs",
+    "application-insights"
+  ],
   "author": "",
   "license": "ISC",
   "description": "MCP Server for Azure Application Insights logs",
   "dependencies": {
     "@azure/identity": "^4.11.1",
-    "@azure/monitor-query": "^1.3.3",
+    "@azure/monitor-query-logs": "^1.0.0",
     "@modelcontextprotocol/sdk": "^1.17.2",
     "cors": "^2.8.5",
     "dotenv": "^17.2.1",

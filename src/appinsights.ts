@@ -1,5 +1,5 @@
 import { ClientSecretCredential } from '@azure/identity';
-import { LogsQueryClient } from '@azure/monitor-query';
+import { LogsQueryClient } from '@azure/monitor-query-logs';
 import type {
   EnvironmentConfig,
   QueryResult

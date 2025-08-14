@@ -79,7 +79,7 @@ server.registerTool(
   "getLogsByOrderNumber",
   {
     title: "Get Logs by Order Number",
-    description: "Retrieves logs from Azure Application Insights",
+    description: "Retrieves logs from Azure Log Analytics Workspace",
     inputSchema: {
       orderNumber: z.string().min(1).max(50).regex(/^[A-Za-z0-9\-_]+$/)
     }

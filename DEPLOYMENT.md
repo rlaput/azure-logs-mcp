@@ -538,7 +538,7 @@ eventSource.onmessage = function(event) {
 ## Next Steps
 
 1. **Set up CI/CD pipeline** using Azure DevOps or GitHub Actions
-2. **Configure monitoring** with Azure Application Insights
+2. **Configure monitoring** with Azure Log Analytics Workspace
 3. **Implement scaling** with Azure Container Apps scaling rules
 4. **Add authentication** for production deployments
 5. **Set up backup strategies** for configuration and logs

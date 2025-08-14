@@ -1,6 +1,6 @@
 # Azure Logs MCP
 
-A TypeScript-based MCP (Model Context Protocol) server that provides tools to fetch logs from Azure Application Insights based on order numbers. This service queries Azure Monitor logs using the Azure SDK and exposes the functionality through MCP tools for use with compatible clients.
+A TypeScript-based MCP (Model Context Protocol) server that provides tools to fetch logs from Azure Log Analytics Workspace based on order numbers. This service queries Azure Monitor logs using the Azure SDK and exposes the functionality through MCP tools for use with compatible clients.
 
 ## Table of Contents
 
@@ -8,7 +8,7 @@ A TypeScript-based MCP (Model Context Protocol) server that provides tools to fe
 - [Prerequisites](#prerequisites)
   - [Create a Service Principal](#1-create-a-service-principal)
   - [Grant Monitoring Reader Permissions](#2-grant-monitoring-reader-permissions)
-  - [Get Application Insights Workspace ID](#3-get-application-insights-workspace-id)
+  - [Get Log Analytics Workspace ID](#3-get-log-analytics-workspace-id)
 - [Configuration](#configuration)
 - [Installation](#installation)
 - [Development](#development)
@@ -73,16 +73,16 @@ Before using this application, you need to set up the following in Azure:
 
 ### 2. Grant Monitoring Reader Permissions
 
-1. Navigate to your **Application Insights** resource in the Azure Portal
+1. Navigate to your **Log Analytics Workspace** resource in the Azure Portal
 2. Go to **Access control (IAM)**
 3. Click **Add** > **Add role assignment**
 4. Select **Monitoring Reader** role
 5. In the **Members** tab, search for and select your Service Principal
 6. Click **Review + assign**
 
-### 3. Get Application Insights Workspace ID
+### 3. Get Log Analytics Workspace ID
 
-1. Navigate to your **Application Insights** resource
+1. Navigate to your **Log Analytics Workspace** resource
 2. Go to **Properties**
 3. Copy the **Workspace ID** (this will be used as `AZURE_MONITOR_WORKSPACE_ID`)
 
@@ -98,7 +98,7 @@ Before using this application, you need to set up the following in Azure:
    - **AZURE_CLIENT_ID**: The Application (client) ID from your Service Principal
    - **AZURE_TENANT_ID**: The Directory (tenant) ID from your Azure AD
    - **AZURE_CLIENT_SECRET**: The client secret value you created
-   - **AZURE_MONITOR_WORKSPACE_ID**: The Workspace ID from your Application Insights resource
+   - **AZURE_MONITOR_WORKSPACE_ID**: The Workspace ID from your Log Analytics Workspace resource
 
 ## Installation
 
@@ -231,7 +231,7 @@ npm run dev
 
 #### getLogsByOrderNumber
 
-**Description:** Retrieves logs from Azure Application Insights that contain the specified order number in the request name, URL, or custom dimensions.
+**Description:** Retrieves logs from Azure Log Analytics Workspace that contain the specified order number in the request name, URL, or custom dimensions.
 
 **Parameters:**
 - `orderNumber` (required): The order number to search for in the logs
@@ -254,7 +254,7 @@ npm run dev
 - Uses parameterized queries to prevent injection attacks
 
 **Response:**
-The tool returns query results from Application Insights, including:
+The tool returns query results from Log Analytics Workspace, including:
 - `timestamp`: When the request occurred
 - `name`: The request name
 - `url`: The request URL
@@ -282,7 +282,7 @@ The server includes comprehensive error handling:
 
 1. **ValidationError**: Invalid input format or missing required fields
 2. **ConfigurationError**: Missing or invalid environment configuration
-3. **QueryError**: Azure Application Insights query failures
+3. **QueryError**: Azure Log Analytics Workspace query failures
 4. **Rate Limit Exceeded**: Too many requests from a single client
 
 ### Security
@@ -315,7 +315,7 @@ The server includes comprehensive error handling:
 azure-logs-mcp/
 ├── src/                    # TypeScript source files
 │   ├── index.ts           # Main server entry point
-│   ├── appinsights.ts     # Azure Application Insights integration
+│   ├── appinsights.ts     # Azure Log Analytics Workspace integration
 │   ├── types.ts           # Type definitions and schemas
 │   └── utils.ts           # Utility functions (logging, rate limiting)
 ├── dist/                  # Compiled JavaScript output
@@ -334,7 +334,7 @@ All environment variables are validated on startup. Missing required variables w
 - `AZURE_CLIENT_ID`: Application (client) ID from your Service Principal
 - `AZURE_TENANT_ID`: Directory (tenant) ID from your Azure AD
 - `AZURE_CLIENT_SECRET`: Client secret value you created
-- `AZURE_MONITOR_WORKSPACE_ID`: Workspace ID from your Application Insights resource
+- `AZURE_MONITOR_WORKSPACE_ID`: Workspace ID from your Log Analytics Workspace resource
 
 ### Optional Variables
 - `NODE_ENV`: Set to 'development' for debug logging (default: 'production')
