@@ -6,8 +6,8 @@ import { rateLimiter, createLogger, RateLimiter } from "./utils";
 import {
   ValidationError as ValidationErrorClass,
   ConfigurationError as ConfigurationErrorClass,
+  GetLogsByOrderNumberSchema,
 } from "./types";
-import { z } from "zod";
 import express from "express";
 import cors from "cors";
 import { randomUUID } from "node:crypto";
@@ -108,21 +108,9 @@ function createMcpServer(): McpServer {
       title: "Get Request Logs by Order Number",
       description:
         "Retrieves request logs from Azure Application Insights by order number. Searches through request logs containing the order number in name, URL, or custom dimensions.",
-      inputSchema: {
-        orderNumber: z
-          .string()
-          .min(1, "Order number cannot be empty")
-          .max(50, "Order number too long")
-          .regex(
-            /^[A-Za-z0-9\-_]+$/,
-            "Invalid order number format. Only alphanumeric characters, hyphens, and underscores are allowed."
-          )
-          .describe(
-            "The order number to search for in the Azure Application Insights logs"
-          ),
-      },
+      inputSchema: GetLogsByOrderNumberSchema.shape,
     },
-    async ({ orderNumber }) => {
+    async ({ orderNumber, limit = 50, duration = "P7D" }) => {
       // Apply rate limiting with default client identification
       const clientId = RateLimiter.extractClientId();
       if (!rateLimiter.checkLimit(clientId)) {
@@ -144,7 +132,7 @@ function createMcpServer(): McpServer {
           clientId,
         });
 
-        const logs = await getRequestLogsByOrderNumber(orderNumber);
+        const logs = await getRequestLogsByOrderNumber(orderNumber, limit, duration);
         const resultCount = logs.tables?.[0]?.rows?.length || 0;
 
         logger.info(

@@ -106,7 +106,17 @@ export const GetLogsByOrderNumberSchema = z.object({
     .min(1, "Order number cannot be empty")
     .max(50, "Order number too long")
     .regex(/^[A-Za-z0-9\-_]+$/, "Invalid order number format. Only alphanumeric characters, hyphens, and underscores are allowed.")
-    .describe("The order number to search for in the Azure Application Insights logs")
+    .describe("The order number to search for in the Azure Application Insights logs"),
+  limit: z.number()
+    .int("Limit must be an integer")
+    .min(1, "Limit must be at least 1")
+    .max(1000, "Limit cannot exceed 1000")
+    .default(50)
+    .describe("Maximum number of log entries to return (default: 50)"),
+  duration: z.string()
+    .regex(/^P(\d+D|T\d+H|\d+DT\d+H)$/, "Duration must be in ISO 8601 format (e.g., P7D for 7 days, PT24H for 24 hours)")
+    .default("P7D")
+    .describe("Time range for the query in ISO 8601 duration format (default: P7D for 7 days)")
 });
 
 export type GetLogsByOrderNumberInput = z.infer<typeof GetLogsByOrderNumberSchema>;

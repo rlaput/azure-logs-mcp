@@ -81,11 +81,13 @@ server.registerTool(
     title: "Get Request Logs by Order Number",
     description: "Retrieves request logs from Azure Log Analytics Workspace",
     inputSchema: {
-      orderNumber: z.string().min(1).max(50).regex(/^[A-Za-z0-9\-_]+$/)
+      orderNumber: z.string().min(1).max(50).regex(/^[A-Za-z0-9\-_]+$/),
+      limit: z.number().int().min(1).max(1000).default(50),
+      duration: z.string().regex(/^P(\d+D|T\d+H|\d+DT\d+H)$/).default("P7D")
     }
   },
-  async ({ orderNumber }) => {
-    // Tool implementation
+  async ({ orderNumber, limit = 50, duration = "P7D" }) => {
+    // Tool implementation with configurable limit and duration
   }
 );
 ```
@@ -119,11 +121,19 @@ server.registerTool(
 
 ### Input Validation
 ```typescript
-// Zod schema validation
+// Zod schema validation with new parameters
 orderNumber: z.string()
   .min(1, "Order number cannot be empty")
   .max(50, "Order number too long")
-  .regex(/^[A-Za-z0-9\-_]+$/, "Invalid format")
+  .regex(/^[A-Za-z0-9\-_]+$/, "Invalid format"),
+limit: z.number()
+  .int("Limit must be an integer")
+  .min(1, "Limit must be at least 1")
+  .max(1000, "Limit cannot exceed 1000")
+  .default(50),
+duration: z.string()
+  .regex(/^P(\d+D|T\d+H|\d+DT\d+H)$/, "Duration must be in ISO 8601 format")
+  .default("P7D")
 ```
 
 ### Rate Limiting

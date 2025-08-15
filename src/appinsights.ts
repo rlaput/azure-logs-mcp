@@ -86,28 +86,35 @@ function validateEnvironment(env: Record<string, string | undefined>): Environme
 /**
  * Creates a Kusto query for searching logs by order number
  * @param sanitizedOrderNumber - The sanitized order number to search for
+ * @param limit - Maximum number of results to return
  * @returns The Kusto query string
  */
-function createKustoQuery(sanitizedOrderNumber: string): string {
+function createKustoQuery(sanitizedOrderNumber: string, limit: number): string {
   return `
     let searchTerm = "${sanitizedOrderNumber}";
     union isfuzzy=true AppRequests
     | where Url contains searchTerm or tostring(Properties) contains searchTerm or Name contains searchTerm
     | project TimeGenerated, Name, Url, ResultCode, DurationMs, Properties
     | order by TimeGenerated desc
-    | limit 50
+    | limit ${limit}
   `;
 }
 
 /**
  * Retrieves request logs from Azure Application Insights by order number
  * @param orderNumber - The order number to search for in the logs
+ * @param limit - Maximum number of results to return (default: 50)
+ * @param duration - Time range for the query (default: "P7D" for 7 days)
  * @returns Promise resolving to the query results from Application Insights
  * @throws ValidationError for invalid input
  * @throws ConfigurationError for missing environment variables
  * @throws QueryError for Azure query failures
  */
-export async function getRequestLogsByOrderNumber(orderNumber: string): Promise<QueryResult> {
+export async function getRequestLogsByOrderNumber(
+  orderNumber: string,
+  limit: number = 50,
+  duration: string = "P7D"
+): Promise<QueryResult> {
   try {
     // Validate and sanitize input
     const validatedOrderNumber = validateOrderNumber(orderNumber);
@@ -127,13 +134,13 @@ export async function getRequestLogsByOrderNumber(orderNumber: string): Promise<
     const logsQueryClient = new LogsQueryClient(credential);
 
     // Create the Kusto query
-    const kustoQuery = createKustoQuery(sanitizedOrderNumber);
+    const kustoQuery = createKustoQuery(sanitizedOrderNumber, limit);
 
     // Execute the query against the Application Insights workspace
     const queryResult = await logsQueryClient.queryWorkspace(
       config.AZURE_MONITOR_WORKSPACE_ID,
       kustoQuery,
-      { duration: "P30D" } // 30-day timespan
+      { duration: duration }
     );
 
     return queryResult as unknown as QueryResult;

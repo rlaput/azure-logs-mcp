@@ -239,6 +239,15 @@ npm run dev
   - Format: Alphanumeric characters, hyphens, and underscores only
   - Length: 1-50 characters
   - Pattern: `^[A-Za-z0-9\-_]+$`
+- `limit` (optional): Maximum number of results to return
+  - Type: number
+  - Range: 1-1000
+  - Default: 50
+- `duration` (optional): Time range for the query
+  - Type: string
+  - Format: ISO 8601 duration format
+  - Examples: "P7D" (7 days), "PT24H" (24 hours), "P30D" (30 days)
+  - Default: "P7D" (7 days)
 
 **Security Features:**
 - Input validation and sanitization
@@ -247,9 +256,9 @@ npm run dev
 - Query timeout protection
 
 **Query Details:**
-- Searches logs from the last 30 days
+- Searches logs from the specified duration (default: last 7 days)
 - Looks for the order number in request names, URLs, and custom dimensions
-- Returns up to 100 results ordered by timestamp (most recent first)
+- Returns up to the specified limit of results ordered by timestamp (most recent first)
 - Query timeout is set to 30 minutes
 - Uses parameterized queries to prevent injection attacks
 
