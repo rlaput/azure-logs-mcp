@@ -16,7 +16,8 @@ export class RateLimiter {
   private readonly maxRequests: number;
   private readonly windowMs: number;
 
-  constructor(maxRequests = 10, windowMs = 60000) { // 10 requests per minute by default
+  constructor(maxRequests = 10, windowMs = 60000) {
+    // 10 requests per minute by default
     this.maxRequests = maxRequests;
     this.windowMs = windowMs;
   }
@@ -26,15 +27,22 @@ export class RateLimiter {
    * @param req - Express request object or similar context
    * @returns Unique client identifier
    */
-  static extractClientId(req?: { headers?: Record<string, string | string[] | undefined>; ip?: string; socket?: { remoteAddress?: string } }): string {
-    if (!req) {return 'default';}
-    
+  static extractClientId(req?: {
+    headers?: Record<string, string | string[] | undefined>;
+    ip?: string;
+    socket?: { remoteAddress?: string };
+  }): string {
+    if (!req) {
+      return 'default';
+    }
+
     // Try to get client ID from headers first
-    const clientIdHeader = req.headers?.['x-client-id'] || req.headers?.['mcp-client-id'];
+    const clientIdHeader =
+      req.headers?.['x-client-id'] || req.headers?.['mcp-client-id'];
     if (clientIdHeader && typeof clientIdHeader === 'string') {
       return clientIdHeader;
     }
-    
+
     // Fall back to IP address
     const ip = req.ip || req.socket?.remoteAddress || 'unknown';
     return `ip:${ip}`;
@@ -53,7 +61,7 @@ export class RateLimiter {
       // First request or window has reset
       this.limits.set(clientId, {
         count: 1,
-        resetTime: now + this.windowMs
+        resetTime: now + this.windowMs,
       });
       return true;
     }
@@ -72,15 +80,23 @@ export class RateLimiter {
    * @param clientId - Unique identifier for the client
    * @returns Current request count and reset time
    */
-  getUsage(clientId: string): { count: number; resetTime: number; remaining: number } {
+  getUsage(clientId: string): {
+    count: number;
+    resetTime: number;
+    remaining: number;
+  } {
     const entry = this.limits.get(clientId);
     if (!entry || Date.now() > entry.resetTime) {
-      return { count: 0, resetTime: Date.now() + this.windowMs, remaining: this.maxRequests };
+      return {
+        count: 0,
+        resetTime: Date.now() + this.windowMs,
+        remaining: this.maxRequests,
+      };
     }
-    return { 
-      count: entry.count, 
-      resetTime: entry.resetTime, 
-      remaining: Math.max(0, this.maxRequests - entry.count) 
+    return {
+      count: entry.count,
+      resetTime: entry.resetTime,
+      remaining: Math.max(0, this.maxRequests - entry.count),
     };
   }
 
@@ -120,7 +136,7 @@ export enum LogLevel {
   ERROR = 0,
   WARN = 1,
   INFO = 2,
-  DEBUG = 3
+  DEBUG = 3,
 }
 
 /**
@@ -145,20 +161,25 @@ class SimpleLogger implements Logger {
     this.level = level;
   }
 
-  private log(level: LogLevel, levelName: string, message: string, meta?: unknown): void {
+  private log(
+    level: LogLevel,
+    levelName: string,
+    message: string,
+    meta?: unknown,
+  ): void {
     if (level <= this.level) {
       const timestamp = new Date().toISOString();
       const logEntry: Record<string, unknown> = {
         timestamp,
         level: levelName,
         logger: this.name,
-        message
+        message,
       };
-      
+
       if (meta !== undefined) {
         logEntry['meta'] = meta;
       }
-      
+
       // Use stderr for error/warn, stdout for info/debug
       const output = level <= LogLevel.WARN ? console.error : console.log;
       output(JSON.stringify(logEntry));
@@ -191,16 +212,20 @@ class SimpleLogger implements Logger {
 export function createLogger(name: string, level?: LogLevel): Logger {
   // Check for LOG_LEVEL environment variable first
   let defaultLevel = LogLevel.INFO;
-  
+
   if (process.env['LOG_LEVEL']) {
     const envLevel = parseInt(process.env['LOG_LEVEL'], 10);
-    if (!isNaN(envLevel) && envLevel >= LogLevel.ERROR && envLevel <= LogLevel.DEBUG) {
+    if (
+      !isNaN(envLevel) &&
+      envLevel >= LogLevel.ERROR &&
+      envLevel <= LogLevel.DEBUG
+    ) {
       defaultLevel = envLevel;
     }
   } else if (process.env['NODE_ENV'] === 'development') {
     defaultLevel = LogLevel.DEBUG;
   }
-  
+
   return new SimpleLogger(name, level ?? defaultLevel);
 }
 
@@ -223,15 +248,22 @@ export function safeStringify(obj: unknown): string {
  * @param sensitiveKeys - Array of keys to redact
  * @returns Object with sensitive values redacted
  */
-export function redactSensitiveInfo(obj: Record<string, unknown>, sensitiveKeys: string[] = ['password', 'secret', 'token', 'key']): Record<string, unknown> {
+export function redactSensitiveInfo(
+  obj: Record<string, unknown>,
+  sensitiveKeys: string[] = ['password', 'secret', 'token', 'key'],
+): Record<string, unknown> {
   const redacted = { ...obj };
-  
+
   for (const key of Object.keys(redacted)) {
-    if (sensitiveKeys.some(sensitive => key.toLowerCase().includes(sensitive.toLowerCase()))) {
+    if (
+      sensitiveKeys.some((sensitive) =>
+        key.toLowerCase().includes(sensitive.toLowerCase()),
+      )
+    ) {
       redacted[key] = '[REDACTED]';
     }
   }
-  
+
   return redacted;
 }
 
@@ -242,13 +274,17 @@ export function redactSensitiveInfo(obj: Record<string, unknown>, sensitiveKeys:
  * @param required - Whether the variable is required
  * @returns Parsed value
  */
-export function getEnvVar(key: string, defaultValue?: string, required = false): string {
+export function getEnvVar(
+  key: string,
+  defaultValue?: string,
+  required = false,
+): string {
   const value = process.env[key] || defaultValue;
-  
+
   if (required && !value) {
     throw new Error(`Required environment variable ${key} is not set`);
   }
-  
+
   return value || '';
 }
 
@@ -263,7 +299,7 @@ export function getEnvBool(key: string, defaultValue = false): boolean {
   if (!value) {
     return defaultValue;
   }
-  
+
   return ['true', '1', 'yes', 'on'].includes(value.toLowerCase());
 }
 
@@ -278,7 +314,7 @@ export function getEnvNumber(key: string, defaultValue = 0): number {
   if (!value) {
     return defaultValue;
   }
-  
+
   const parsed = parseInt(value, 10);
   return isNaN(parsed) ? defaultValue : parsed;
 }

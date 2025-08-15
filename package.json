@@ -4,6 +4,7 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
+    "format": "npx prettier . --write",
     "dev": "tsx src/index.ts",
     "dev:sse": "tsx src/sse-server.ts",
     "dev:inspector": "npx @modelcontextprotocol/inspector node dist/index.js",

@@ -26,7 +26,8 @@
 
 This project provides **two MCP server implementations** for different deployment scenarios:
 
-### 1. **Stdio Server** (`src/index.ts`) 
+### 1. **Stdio Server** (`src/index.ts`)
+
 - ✅ **McpServer API** - clean, maintainable implementation
 - ✅ Stdio transport for CLI integration
 - ✅ Simplified tool registration with Zod schemas
@@ -34,12 +35,14 @@ This project provides **two MCP server implementations** for different deploymen
 - 🎯 **Use case**: CLI integrations, development tools, desktop applications
 
 **Run with:**
+
 ```bash
 npm run dev      # Development
 npm run start    # Production
 ```
 
 ### 2. **HTTP Server** (`src/sse-server.ts`) ⭐ **RECOMMENDED FOR WEB**
+
 - ✅ **McpServer API** with HTTP transport
 - ✅ **Streamable HTTP transport** (latest MCP protocol)
 - ✅ Session management with automatic cleanup
@@ -48,6 +51,7 @@ npm run start    # Production
 - 🎯 **Use case**: Production HTTP deployments, web integrations, containerized apps
 
 **Run with:**
+
 ```bash
 npm run dev:sse    # Development
 npm run start:sse  # Production
@@ -56,6 +60,7 @@ npm run start:sse  # Production
 ## 🔧 **Key Features Implemented**
 
 ### 1. **Enhanced Rate Limiting**
+
 - ✅ **Per-client identification** using headers or IP address
 - ✅ **Configurable limits** (10 requests/minute by default)
 - ✅ **Automatic cleanup** of expired entries
@@ -69,6 +74,7 @@ if (!rateLimiter.checkLimit(clientId)) {
 ```
 
 ### 2. **Modern MCP API**
+
 - ✅ **Simplified tool registration** with `registerTool()`
 - ✅ **Built-in Zod validation** for input schemas
 - ✅ **Better error handling** and type safety
@@ -76,50 +82,60 @@ if (!rateLimiter.checkLimit(clientId)) {
 
 ```typescript
 server.registerTool(
-  "getRequestLogsByOrderNumber",
+  'getRequestLogsByOrderNumber',
   {
-    title: "Get Request Logs by Order Number",
-    description: "Retrieves request logs from Azure Log Analytics Workspace",
+    title: 'Get Request Logs by Order Number',
+    description: 'Retrieves request logs from Azure Log Analytics Workspace',
     inputSchema: {
-      orderNumber: z.string().min(1).max(50).regex(/^[A-Za-z0-9\-_]+$/),
+      orderNumber: z
+        .string()
+        .min(1)
+        .max(50)
+        .regex(/^[A-Za-z0-9\-_]+$/),
       limit: z.number().int().min(1).max(1000).default(50),
-      duration: z.string().regex(/^P(\d+D|T\d+H|\d+DT\d+H)$/).default("P7D")
-    }
+      duration: z
+        .string()
+        .regex(/^P(\d+D|T\d+H|\d+DT\d+H)$/)
+        .default('P7D'),
+    },
   },
-  async ({ orderNumber, limit = 50, duration = "P7D" }) => {
+  async ({ orderNumber, limit = 50, duration = 'P7D' }) => {
     // Tool implementation with configurable limit and duration
-  }
+  },
 );
 ```
 
 ### 3. **Security Enhancements**
+
 - ✅ **Input sanitization** prevents injection attacks
 - ✅ **Error message sanitization** prevents information leakage
 - ✅ **Environment validation** ensures required credentials
 - ✅ **TypeScript strict mode** for compile-time safety
 
 ### 4. **Protocol Compliance**
+
 - ✅ **Proper MCP response format** (single content block)
 - ✅ **Correct capabilities declaration** (`tools: { listChanged: true }`)
 - ✅ **Standard error handling** with appropriate error codes
 
 ## 📊 **Comparison Matrix**
 
-| Feature | Stdio Server | HTTP Server |
-|---------|--------------|-------------|
-| **Transport** | Stdio | Streamable HTTP |
-| **Browser Support** | ❌ | ✅ |
-| **Session Management** | N/A | ✅ Automatic |
-| **CORS Support** | N/A | ✅ |
-| **Rate Limiting** | ✅ | ✅ |
-| **Type Safety** | ✅ Excellent | ✅ Excellent |
-| **Maintainability** | ✅ High | ✅ High |
-| **Performance** | ✅ Excellent | ✅ Excellent |
-| **Use Case** | CLI/Desktop | Web/Container |
+| Feature                | Stdio Server | HTTP Server     |
+| ---------------------- | ------------ | --------------- |
+| **Transport**          | Stdio        | Streamable HTTP |
+| **Browser Support**    | ❌           | ✅              |
+| **Session Management** | N/A          | ✅ Automatic    |
+| **CORS Support**       | N/A          | ✅              |
+| **Rate Limiting**      | ✅           | ✅              |
+| **Type Safety**        | ✅ Excellent | ✅ Excellent    |
+| **Maintainability**    | ✅ High      | ✅ High         |
+| **Performance**        | ✅ Excellent | ✅ Excellent    |
+| **Use Case**           | CLI/Desktop  | Web/Container   |
 
 ## 🛡️ **Security Features**
 
 ### Input Validation
+
 ```typescript
 // Zod schema validation with new parameters
 orderNumber: z.string()
@@ -137,6 +153,7 @@ duration: z.string()
 ```
 
 ### Rate Limiting
+
 ```typescript
 // Per-client rate limiting
 const clientId = RateLimiter.extractClientId(req);
@@ -144,6 +161,7 @@ const clientId = RateLimiter.extractClientId(req);
 ```
 
 ### Error Sanitization
+
 ```typescript
 // Prevents sensitive information leakage
 function sanitizeError(error: unknown): string {
@@ -185,7 +203,7 @@ The container exposes port 3000 and uses the HTTP server implementation for maxi
 
 ## 📝 **Development Workflow**
 
-1. **Choose Implementation**: 
+1. **Choose Implementation**:
    - Use **Stdio** for CLI tools and desktop applications
    - Use **HTTP** for web applications and containerized deployments
 2. **Environment Setup**: Copy `.env.example` to `.env`
@@ -205,18 +223,21 @@ Both implementations provide excellent developer experience, enhanced security, 
 ## 🚀 **Quick Start**
 
 ### CLI Integration
+
 ```bash
 npm run dev
 # Server starts on stdio transport
 ```
 
 ### Web Integration
+
 ```bash
 npm run dev:sse
 # Server starts on http://localhost:3000
 ```
 
 ### Container Deployment
+
 ```bash
 docker-compose up --build
 # Server available at http://localhost:3000

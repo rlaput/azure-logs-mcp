@@ -89,12 +89,12 @@ Before using this application, you need to set up the following in Azure:
 ## Configuration
 
 1. Copy the environment variables template:
+
    ```bash
    cp .env.example .env
    ```
 
 2. Edit the `.env` file with your Azure credentials:
-
    - **AZURE_CLIENT_ID**: The Application (client) ID from your Service Principal
    - **AZURE_TENANT_ID**: The Directory (tenant) ID from your Azure AD
    - **AZURE_CLIENT_SECRET**: The client secret value you created
@@ -186,6 +186,7 @@ docker run --env-file .env -p 3000:3000 azure-logs-mcp
 ### OCI Compliance
 
 This project follows Open Container Initiative standards:
+
 - ✅ **Multi-runtime support**: Docker, Podman, Buildah, CRI-O, containerd
 - ✅ **Rootless containers**: Enhanced security with Podman
 - ✅ **OCI labels**: Proper metadata and annotations
@@ -218,11 +219,13 @@ For OCI compliance details, see [OCI-COMPLIANCE.md](OCI-COMPLIANCE.md).
 **Transport:** stdio (standard MCP protocol)
 
 **Connection Command:**
+
 ```bash
 node dist/index.js
 ```
 
 Or for development:
+
 ```bash
 npm run dev
 ```
@@ -234,6 +237,7 @@ npm run dev
 **Description:** Retrieves request logs from Azure Log Analytics Workspace that contain the specified order number in the request name, URL, or custom dimensions.
 
 **Parameters:**
+
 - `orderNumber` (required): The order number to search for in the logs
   - Type: string
   - Format: Alphanumeric characters, hyphens, and underscores only
@@ -250,12 +254,14 @@ npm run dev
   - Default: "P7D" (7 days)
 
 **Security Features:**
+
 - Input validation and sanitization
 - Rate limiting (10 requests per minute per client)
 - Error message sanitization
 - Query timeout protection
 
 **Query Details:**
+
 - Searches logs from the specified duration (default: last 7 days)
 - Looks for the order number in request names, URLs, and custom dimensions
 - Returns up to the specified limit of results ordered by timestamp (most recent first)
@@ -264,6 +270,7 @@ npm run dev
 
 **Response:**
 The tool returns query results from Log Analytics Workspace, including:
+
 - `timestamp`: When the request occurred
 - `name`: The request name
 - `url`: The request URL
@@ -272,6 +279,7 @@ The tool returns query results from Log Analytics Workspace, including:
 - `customDimensions`: Additional custom data
 
 **Rate Limiting:**
+
 - Maximum 10 requests per minute per client
 - Automatic cleanup of expired rate limit entries
 - Graceful error messages when limits are exceeded
@@ -304,6 +312,7 @@ The server includes comprehensive error handling:
 ## Dependencies
 
 ### Runtime Dependencies
+
 - **@azure/identity**: Azure authentication library
 - **@azure/monitor-query**: Azure Monitor query client
 - **@modelcontextprotocol/sdk**: Official MCP SDK
@@ -311,6 +320,7 @@ The server includes comprehensive error handling:
 - **zod**: Runtime type validation and parsing
 
 ### Development Dependencies
+
 - **typescript**: TypeScript compiler and language support
 - **@types/node**: Node.js type definitions
 - **tsx**: TypeScript execution for development
@@ -340,12 +350,14 @@ azure-logs-mcp/
 All environment variables are validated on startup. Missing required variables will cause the server to exit with an error.
 
 ### Required Variables
+
 - `AZURE_CLIENT_ID`: Application (client) ID from your Service Principal
 - `AZURE_TENANT_ID`: Directory (tenant) ID from your Azure AD
 - `AZURE_CLIENT_SECRET`: Client secret value you created
 - `AZURE_MONITOR_WORKSPACE_ID`: Workspace ID from your Log Analytics Workspace resource
 
 ### Optional Variables
+
 - `NODE_ENV`: Set to 'development' for debug logging (default: 'production')
 - `LOG_LEVEL`: Override default log level
   - `0` = ERROR (only error messages)
@@ -383,6 +395,7 @@ npm start
 ```
 
 Log levels:
+
 - `0` = ERROR: Only critical errors
 - `1` = WARN: Warnings and errors
 - `2` = INFO: General information, warnings, and errors (default for production)
@@ -429,6 +442,6 @@ Additional environment variables for containerized deployments:
 
 - `PORT`: Server port (default: 3000)
 - `TRANSPORT_MODE`: 'sse' or 'stdio' (default: sse)
-- `CORS_ORIGIN`: Allowed CORS origins (default: *)
+- `CORS_ORIGIN`: Allowed CORS origins (default: \*)
 
 For comprehensive deployment guidance, see [DEPLOYMENT.md](DEPLOYMENT.md).

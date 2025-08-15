@@ -1,13 +1,10 @@
 import { ClientSecretCredential } from '@azure/identity';
 import { LogsQueryClient } from '@azure/monitor-query-logs';
-import type {
-  EnvironmentConfig,
-  QueryResult
-} from './types';
+import type { EnvironmentConfig, QueryResult } from './types';
 import {
   ValidationError as ValidationErrorClass,
   ConfigurationError as ConfigurationErrorClass,
-  QueryError as QueryErrorClass
+  QueryError as QueryErrorClass,
 } from './types';
 
 /**
@@ -20,19 +17,19 @@ function sanitizeInput(input: string): string {
   if (typeof input !== 'string') {
     throw new ValidationErrorClass('Input must be a string');
   }
-  
+
   // Remove or escape potentially dangerous characters
   // Allow alphanumeric, hyphens, underscores, and basic punctuation
   const sanitized = input.replace(/[^\w\-.]/g, '');
-  
+
   if (sanitized.length === 0) {
     throw new ValidationErrorClass('Invalid order number format');
   }
-  
+
   if (sanitized.length > 50) {
     throw new ValidationErrorClass('Order number too long');
   }
-  
+
   return sanitized;
 }
 
@@ -44,20 +41,24 @@ function sanitizeInput(input: string): string {
  */
 function validateOrderNumber(orderNumber: string): string {
   if (!orderNumber || typeof orderNumber !== 'string') {
-    throw new ValidationErrorClass('Order number is required and must be a string');
+    throw new ValidationErrorClass(
+      'Order number is required and must be a string',
+    );
   }
-  
+
   const trimmed = orderNumber.trim();
   if (trimmed.length === 0) {
     throw new ValidationErrorClass('Order number cannot be empty');
   }
-  
+
   // Basic format validation - adjust regex based on your order number format
   const orderNumberRegex = /^[A-Za-z0-9\-_]{1,50}$/;
   if (!orderNumberRegex.test(trimmed)) {
-    throw new ValidationErrorClass('Invalid order number format. Only alphanumeric characters, hyphens, and underscores are allowed.');
+    throw new ValidationErrorClass(
+      'Invalid order number format. Only alphanumeric characters, hyphens, and underscores are allowed.',
+    );
   }
-  
+
   return trimmed;
 }
 
@@ -67,19 +68,28 @@ function validateOrderNumber(orderNumber: string): string {
  * @returns Validated environment configuration
  * @throws ConfigurationError if required variables are missing
  */
-function validateEnvironment(env: Record<string, string | undefined>): EnvironmentConfig {
-  const required = ['AZURE_CLIENT_ID', 'AZURE_TENANT_ID', 'AZURE_CLIENT_SECRET', 'AZURE_MONITOR_WORKSPACE_ID'] as const;
-  const missing = required.filter(key => !env[key]);
-  
+function validateEnvironment(
+  env: Record<string, string | undefined>,
+): EnvironmentConfig {
+  const required = [
+    'AZURE_CLIENT_ID',
+    'AZURE_TENANT_ID',
+    'AZURE_CLIENT_SECRET',
+    'AZURE_MONITOR_WORKSPACE_ID',
+  ] as const;
+  const missing = required.filter((key) => !env[key]);
+
   if (missing.length > 0) {
-    throw new ConfigurationErrorClass(`Missing required environment variables: ${missing.join(', ')}`);
+    throw new ConfigurationErrorClass(
+      `Missing required environment variables: ${missing.join(', ')}`,
+    );
   }
-  
+
   return {
     AZURE_CLIENT_ID: env['AZURE_CLIENT_ID']!,
     AZURE_TENANT_ID: env['AZURE_TENANT_ID']!,
     AZURE_CLIENT_SECRET: env['AZURE_CLIENT_SECRET']!,
-    AZURE_MONITOR_WORKSPACE_ID: env['AZURE_MONITOR_WORKSPACE_ID']!
+    AZURE_MONITOR_WORKSPACE_ID: env['AZURE_MONITOR_WORKSPACE_ID']!,
   };
 }
 
@@ -113,21 +123,21 @@ function createKustoQuery(sanitizedOrderNumber: string, limit: number): string {
 export async function getRequestLogsByOrderNumber(
   orderNumber: string,
   limit: number = 50,
-  duration: string = "P7D"
+  duration: string = 'P7D',
 ): Promise<QueryResult> {
   try {
     // Validate and sanitize input
     const validatedOrderNumber = validateOrderNumber(orderNumber);
     const sanitizedOrderNumber = sanitizeInput(validatedOrderNumber);
-    
+
     // Validate environment configuration
     const config = validateEnvironment(process.env);
-    
+
     // Create authentication credential
     const credential = new ClientSecretCredential(
       config.AZURE_TENANT_ID,
       config.AZURE_CLIENT_ID,
-      config.AZURE_CLIENT_SECRET
+      config.AZURE_CLIENT_SECRET,
     );
 
     // Create the logs query client
@@ -140,29 +150,31 @@ export async function getRequestLogsByOrderNumber(
     const queryResult = await logsQueryClient.queryWorkspace(
       config.AZURE_MONITOR_WORKSPACE_ID,
       kustoQuery,
-      { duration: duration }
+      { duration: duration },
     );
 
     return queryResult as unknown as QueryResult;
-
   } catch (error) {
     // Log error details for debugging but don't expose sensitive information
     console.error('Error querying Application Insights:', {
       message: error instanceof Error ? error.message : 'Unknown error',
       orderNumber: '[REDACTED]',
       timestamp: new Date().toISOString(),
-      type: error instanceof Error ? error.constructor.name : 'Unknown'
+      type: error instanceof Error ? error.constructor.name : 'Unknown',
     });
-    
+
     // Re-throw known error types
-    if (error instanceof ValidationErrorClass || error instanceof ConfigurationErrorClass) {
+    if (
+      error instanceof ValidationErrorClass ||
+      error instanceof ConfigurationErrorClass
+    ) {
       throw error;
     }
-    
+
     // Wrap unknown errors
     throw new QueryErrorClass(
       'Failed to query logs. Please check your configuration and try again.',
-      error instanceof Error ? error : new Error(String(error))
+      error instanceof Error ? error : new Error(String(error)),
     );
   }
 }
@@ -176,38 +188,38 @@ export async function getRequestLogsByOrderNumber(
 export async function healthCheck(): Promise<boolean> {
   try {
     const config = validateEnvironment(process.env);
-    
+
     const credential = new ClientSecretCredential(
       config.AZURE_TENANT_ID,
       config.AZURE_CLIENT_ID,
-      config.AZURE_CLIENT_SECRET
+      config.AZURE_CLIENT_SECRET,
     );
 
     const logsQueryClient = new LogsQueryClient(credential);
-    
+
     // Simple query to test connectivity
     const testQuery = 'print "health_check"';
-    
+
     await logsQueryClient.queryWorkspace(
       config.AZURE_MONITOR_WORKSPACE_ID,
       testQuery,
-      { duration: 'PT5M' }
+      { duration: 'PT5M' },
     );
-    
+
     return true;
   } catch (error) {
     console.error('Health check failed:', {
       message: error instanceof Error ? error.message : 'Unknown error',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
-    
+
     if (error instanceof ConfigurationErrorClass) {
       throw error;
     }
-    
+
     throw new QueryErrorClass(
       'Health check failed. Unable to connect to Azure Application Insights.',
-      error instanceof Error ? error : new Error(String(error))
+      error instanceof Error ? error : new Error(String(error)),
     );
   }
 }

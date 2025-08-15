@@ -35,18 +35,21 @@ This document outlines how the Azure Logs MCP project adheres to the Open Contai
 ## OCI Standards Compliance
 
 ### Image Specification
+
 - ✅ **OCI Image Format**: All container images follow the OCI Image Format Specification v1.0.0
 - ✅ **OCI Labels**: Proper metadata labels using `org.opencontainers.image.*` namespace
 - ✅ **Multi-architecture**: Support for multiple CPU architectures (amd64, arm64)
 - ✅ **Layer Optimization**: Efficient layer structure for optimal caching and distribution
 
 ### Runtime Specification
+
 - ✅ **OCI Runtime**: Compatible with any OCI-compliant runtime (runc, crun, kata, etc.)
 - ✅ **Container Configuration**: Follows OCI Runtime Specification v1.0.0
 - ✅ **Security**: Non-root user execution, minimal privileges
 - ✅ **Resource Limits**: Proper resource constraint definitions
 
 ### Distribution Specification
+
 - ✅ **Registry Compatibility**: Works with any OCI-compliant registry
 - ✅ **Content Addressing**: Proper content-addressable storage
 - ✅ **Manifest Format**: OCI-compliant manifest structure
@@ -54,10 +57,12 @@ This document outlines how the Azure Logs MCP project adheres to the Open Contai
 ## Supported Container Runtimes
 
 ### Primary Support
+
 - **Podman** (Recommended) - Daemonless, rootless, OCI-native
 - **Docker** - Traditional container runtime with OCI support
 
 ### Additional OCI Runtimes
+
 - **Buildah** - Container image building
 - **Skopeo** - Container image operations
 - **CRI-O** - Kubernetes container runtime
@@ -112,16 +117,19 @@ podman push azure-logs-mcp ghcr.io/username/azure-logs-mcp
 ## Security Features
 
 ### Rootless Execution
+
 - Container runs as non-root user (UID 1001)
 - Podman supports rootless containers by default
 - No privileged access required
 
 ### Minimal Attack Surface
+
 - Alpine Linux base image
 - Multi-stage builds to reduce image size
 - Only production dependencies in final image
 
 ### Resource Constraints
+
 ```yaml
 # Example resource limits in compose
 deploy:
@@ -139,23 +147,25 @@ deploy:
 ### For Existing Docker Users
 
 1. **Install Podman**:
+
    ```bash
    # Ubuntu/Debian
    sudo apt-get install podman
-   
+
    # RHEL/CentOS/Fedora
    sudo dnf install podman
-   
+
    # macOS
    brew install podman
    ```
 
 2. **Use Container Commands**:
+
    ```bash
    # Both Docker and Podman use the same Containerfile
    docker build -f Containerfile -t azure-logs-mcp .
    podman build -f Containerfile -t azure-logs-mcp .
-   
+
    # Same run commands
    docker run --env-file .env -p 3000:3000 azure-logs-mcp
    podman run --env-file .env -p 3000:3000 azure-logs-mcp
@@ -178,18 +188,21 @@ deploy:
 ## Best Practices
 
 ### Build Optimization
+
 - Use multi-stage builds
 - Leverage build cache effectively
 - Minimize layer count
 - Use `.containerignore` to exclude unnecessary files
 
 ### Security
+
 - Always run as non-root user
 - Use specific base image tags (not `latest`)
 - Regularly update base images
 - Scan images for vulnerabilities
 
 ### Portability
+
 - Use OCI-compliant features only
 - Test with multiple runtimes
 - Use standard port mappings
@@ -200,16 +213,18 @@ deploy:
 ### Common Issues
 
 1. **Permission Denied (Rootless)**:
+
    ```bash
    # Check user namespaces
    podman info --debug
-   
+
    # Fix subuid/subgid
    sudo usermod --add-subuids 100000-165535 $USER
    sudo usermod --add-subgids 100000-165535 $USER
    ```
 
 2. **Port Binding Issues**:
+
    ```bash
    # Use unprivileged ports (>1024) for rootless
    podman run -p 3000:3000 azure-logs-mcp  # Good

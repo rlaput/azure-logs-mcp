@@ -169,22 +169,26 @@ CORS_ORIGIN=*               # Allowed origins for CORS (default: *)
 ### SSE (Server-Sent Events) Mode
 
 **Best for:**
+
 - Web applications
 - Remote client connections
 - Browser-based MCP clients
 - Cloud deployments
 
 **Features:**
+
 - HTTP/HTTPS endpoint
 - CORS support for web clients
 - Health check endpoint
 - RESTful architecture
 
 **Endpoints:**
+
 - `GET /sse` - MCP SSE endpoint
 - `GET /health` - Health check endpoint
 
 **Usage:**
+
 ```bash
 # Development
 npm run dev:sse
@@ -199,17 +203,20 @@ docker run -e TRANSPORT_MODE=sse -p 3000:3000 azure-logs-mcp
 ### stdio Mode
 
 **Best for:**
+
 - Direct client connections
 - Local development
 - Command-line tools
 - Traditional MCP clients
 
 **Features:**
+
 - Standard input/output communication
 - Lower overhead
 - Direct process communication
 
 **Usage:**
+
 ```bash
 # Development
 npm run dev
@@ -223,13 +230,13 @@ docker run -e TRANSPORT_MODE=stdio azure-logs-mcp
 
 ## Container Runtime Comparison
 
-| Feature | Docker | Podman | Notes |
-|---------|--------|--------|-------|
-| Daemon | Required | Daemonless | Podman runs without a background daemon |
-| Root Access | Required | Optional | Podman can run rootless containers |
-| OCI Compliance | Yes | Yes | Both fully support OCI standards |
-| Build Files | Containerfile | Containerfile | Both use the same OCI-standard Containerfile |
-| Multi-container | docker-compose | podman pod | Different approaches for orchestration |
+| Feature         | Docker         | Podman        | Notes                                        |
+| --------------- | -------------- | ------------- | -------------------------------------------- |
+| Daemon          | Required       | Daemonless    | Podman runs without a background daemon      |
+| Root Access     | Required       | Optional      | Podman can run rootless containers           |
+| OCI Compliance  | Yes            | Yes           | Both fully support OCI standards             |
+| Build Files     | Containerfile  | Containerfile | Both use the same OCI-standard Containerfile |
+| Multi-container | docker-compose | podman pod    | Different approaches for orchestration       |
 
 ## Podman-Specific Features
 
@@ -295,11 +302,13 @@ podman run --env-file .env -p 3000:3000 quay.io/your-username/azure-logs-mcp
 Based on the MCP documentation patterns, here's how to deploy to Azure Container Apps:
 
 1. **Register Azure Resource Provider:**
+
 ```bash
 az provider register --namespace Microsoft.App --wait
 ```
 
 2. **Deploy to Azure Container Apps:**
+
 ```bash
 az containerapp up \
   -g <RESOURCE_GROUP_NAME> \
@@ -313,6 +322,7 @@ az containerapp up \
 ```
 
 3. **Using Azure Developer CLI (azd):**
+
 ```bash
 # Initialize azd project
 azd init
@@ -324,16 +334,19 @@ azd up
 ### Docker Hub Deployment
 
 1. **Build and tag:**
+
 ```bash
 docker build -t <your-username>/azure-logs-mcp .
 ```
 
 2. **Push to Docker Hub:**
+
 ```bash
 docker push <your-username>/azure-logs-mcp
 ```
 
 3. **Deploy from Docker Hub:**
+
 ```bash
 docker run --env-file .env -p 3000:3000 <your-username>/azure-logs-mcp
 ```
@@ -347,6 +360,7 @@ curl http://localhost:3000/health
 ```
 
 **Response:**
+
 ```json
 {
   "status": "healthy",
@@ -404,6 +418,7 @@ docker inspect <container-id>
 ### Debugging Commands
 
 #### Docker Commands
+
 ```bash
 # View container logs
 docker logs <container-id>
@@ -420,6 +435,7 @@ docker inspect <container-id>
 ```
 
 #### Podman Commands
+
 ```bash
 # View container logs
 podman logs <container-id>
@@ -439,6 +455,7 @@ podman info --format "{{.Host.Security.Rootless}}"
 ```
 
 #### Universal Commands
+
 ```bash
 # Test health endpoint
 curl -f http://localhost:3000/health || echo "Health check failed"
@@ -529,7 +546,7 @@ Add to your `mcp.json` configuration:
 // Example SSE client connection
 const eventSource = new EventSource('http://localhost:3000/sse');
 
-eventSource.onmessage = function(event) {
+eventSource.onmessage = function (event) {
   const data = JSON.parse(event.data);
   console.log('MCP message:', data);
 };

@@ -1,24 +1,24 @@
-import "dotenv/config";
-import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
-import { createLogger } from "./utils";
+import 'dotenv/config';
+import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
+import { createLogger } from './utils';
 import {
   validateEnvironment,
   performStartupChecks,
   createMcpServer,
   createShutdownHandler,
   setupGracefulShutdown,
-} from "./server-common";
-import { healthCheck } from "./appinsights";
-import express from "express";
-import cors from "cors";
-import { randomUUID } from "node:crypto";
+} from './server-common';
+import { healthCheck } from './appinsights';
+import express from 'express';
+import cors from 'cors';
+import { randomUUID } from 'node:crypto';
 
 /**
  * Main server initialization and startup for HTTP transport
  */
 export async function startHttpServer(): Promise<void> {
-  const logger = createLogger("azure-logs-mcp-sse");
-  
+  const logger = createLogger('azure-logs-mcp-sse');
+
   try {
     // Validate environment on startup
     validateEnvironment();
@@ -28,41 +28,42 @@ export async function startHttpServer(): Promise<void> {
 
     // Create Express app
     const app = express();
-    const port = parseInt(process.env["PORT"] || "3000", 10);
+    const port = parseInt(process.env['PORT'] || '3000', 10);
 
     // Middleware
     app.use(
       cors({
-        origin: process.env["CORS_ORIGIN"] || "*",
+        origin: process.env['CORS_ORIGIN'] || '*',
         credentials: true,
-        exposedHeaders: ["Mcp-Session-Id"],
-        allowedHeaders: ["Content-Type", "mcp-session-id", "x-client-id"],
-      })
+        exposedHeaders: ['Mcp-Session-Id'],
+        allowedHeaders: ['Content-Type', 'mcp-session-id', 'x-client-id'],
+      }),
     );
     app.use(express.json());
 
     // Map to store transports by session ID
-    const transports: { [sessionId: string]: StreamableHTTPServerTransport } = {};
+    const transports: { [sessionId: string]: StreamableHTTPServerTransport } =
+      {};
 
     // Health check endpoint
-    app.get("/health", async (req: express.Request, res: express.Response) => {
+    app.get('/health', async (req: express.Request, res: express.Response) => {
       try {
         await healthCheck();
-        res.json({ status: "healthy", timestamp: new Date().toISOString() });
+        res.json({ status: 'healthy', timestamp: new Date().toISOString() });
       } catch (error) {
-        logger.error("Health check failed:", error);
+        logger.error('Health check failed:', error);
         res.status(503).json({
-          status: "unhealthy",
-          error: "Azure connectivity check failed",
+          status: 'unhealthy',
+          error: 'Azure connectivity check failed',
           timestamp: new Date().toISOString(),
         });
       }
     });
 
     // Handle MCP requests using modern API
-    app.all("/mcp", async (req: express.Request, res: express.Response) => {
+    app.all('/mcp', async (req: express.Request, res: express.Response) => {
       try {
-        const sessionId = req.headers["mcp-session-id"] as string | undefined;
+        const sessionId = req.headers['mcp-session-id'] as string | undefined;
         let transport: StreamableHTTPServerTransport;
 
         if (sessionId && transports[sessionId]) {
@@ -88,20 +89,20 @@ export async function startHttpServer(): Promise<void> {
           };
 
           // Create and connect the MCP server
-          const server = createMcpServer("sse");
+          const server = createMcpServer('sse');
           await server.connect(transport);
         }
 
         // Handle the request
         await transport.handleRequest(req, res, req.body);
       } catch (error) {
-        logger.error("Error handling MCP request:", error);
+        logger.error('Error handling MCP request:', error);
         if (!res.headersSent) {
           res.status(500).json({
-            jsonrpc: "2.0",
+            jsonrpc: '2.0',
             error: {
               code: -32603,
-              message: "Internal server error",
+              message: 'Internal server error',
             },
             id: null,
           });
@@ -110,32 +111,32 @@ export async function startHttpServer(): Promise<void> {
     });
 
     // Root endpoint with API information
-    app.get("/", (req: express.Request, res: express.Response) => {
+    app.get('/', (req: express.Request, res: express.Response) => {
       res.json({
-        name: "Azure Logs MCP Server",
-        version: "1.0.0",
-        transport: "http",
+        name: 'Azure Logs MCP Server',
+        version: '1.0.0',
+        transport: 'http',
         endpoints: {
-          health: "/health",
-          mcp: "/mcp",
+          health: '/health',
+          mcp: '/mcp',
         },
-        tools: ["getRequestLogsByOrderNumber"],
+        tools: ['getRequestLogsByOrderNumber'],
       });
     });
 
     // Start the HTTP server
     app.listen(port, () => {
       logger.info(`Azure Logs MCP Server started successfully on port ${port}`);
-      logger.info("Available endpoints:");
+      logger.info('Available endpoints:');
       logger.info(`  - Root: http://localhost:${port}/`);
       logger.info(`  - MCP: http://localhost:${port}/mcp`);
       logger.info(`  - Health: http://localhost:${port}/health`);
-      logger.info("Tool available: getRequestLogsByOrderNumber");
-      logger.info("Using McpServer API with Streamable HTTP transport");
+      logger.info('Tool available: getRequestLogsByOrderNumber');
+      logger.info('Using McpServer API with Streamable HTTP transport');
     });
 
     // Handle graceful shutdown
-    const shutdown = createShutdownHandler("sse", async () => {
+    const shutdown = createShutdownHandler('sse', async () => {
       // Close all active transports
       for (const [sessionId, transport] of Object.entries(transports)) {
         try {
@@ -144,7 +145,7 @@ export async function startHttpServer(): Promise<void> {
         } catch (error) {
           logger.error(
             `Error closing transport for session ${sessionId}:`,
-            error
+            error,
           );
         }
       }
@@ -152,7 +153,7 @@ export async function startHttpServer(): Promise<void> {
 
     setupGracefulShutdown(shutdown);
   } catch (error) {
-    logger.error("Failed to start server:", error);
+    logger.error('Failed to start server:', error);
     process.exit(1);
   }
 }
