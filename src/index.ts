@@ -1,7 +1,7 @@
 import "dotenv/config";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import { getLogsByOrderNumber, healthCheck } from "./appinsights";
+import { getRequestLogsByOrderNumber, healthCheck } from "./appinsights";
 import { rateLimiter, createLogger, RateLimiter } from "./utils";
 import {
   ValidationError as ValidationErrorClass,
@@ -108,11 +108,11 @@ async function main(): Promise<void> {
 
     // Register the Azure logs tool
     server.registerTool(
-      "getLogsByOrderNumber",
+      "getRequestLogsByOrderNumber",
       {
-        title: "Get Logs by Order Number",
+        title: "Get Request Logs by Order Number",
         description:
-          "Retrieves logs from Azure Application Insights by order number. Searches through request logs containing the order number in name, URL, or custom dimensions.",
+          "Retrieves request logs from Azure Application Insights by order number. Searches through request logs containing the order number in name, URL, or custom dimensions.",
         inputSchema: {
           orderNumber: z
             .string()
@@ -144,11 +144,11 @@ async function main(): Promise<void> {
         }
 
         try {
-          logger.info("Executing getLogsByOrderNumber", {
+          logger.info("Executing getRequestLogsByOrderNumber", {
             orderNumber: "[REDACTED]",
           });
 
-          const logs = await getLogsByOrderNumber(orderNumber);
+          const logs = await getRequestLogsByOrderNumber(orderNumber);
           const resultCount = logs.tables?.[0]?.rows?.length || 0;
 
           logger.info(`Successfully retrieved ${resultCount} log entries`);
@@ -167,7 +167,7 @@ async function main(): Promise<void> {
             ],
           };
         } catch (error) {
-          const sanitizedError = sanitizeError(error, "getLogsByOrderNumber");
+          const sanitizedError = sanitizeError(error, "getRequestLogsByOrderNumber");
           logger.error("Tool execution failed", { error: sanitizedError });
 
           return {
@@ -187,7 +187,7 @@ async function main(): Promise<void> {
     const transport = new StdioServerTransport();
 
     logger.info("Azure Logs MCP Server starting...");
-    logger.info("Tool available: getLogsByOrderNumber");
+    logger.info("Tool available: getRequestLogsByOrderNumber");
     logger.info("Transport: stdio");
 
     await server.connect(transport);

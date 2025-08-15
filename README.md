@@ -24,7 +24,7 @@ A TypeScript-based MCP (Model Context Protocol) server that provides tools to fe
 - [MCP Server Usage](#mcp-server-usage)
   - [Server Connection](#server-connection)
   - [Available Tools](#available-tools)
-    - [getLogsByOrderNumber](#getlogsbyordernumber)
+    - [getRequestLogsByOrderNumber](#getrequestlogsbyordernumber)
 - [Error Handling](#error-handling)
   - [Error Types](#error-types)
   - [Security](#security)
@@ -229,9 +229,9 @@ npm run dev
 
 ### Available Tools
 
-#### getLogsByOrderNumber
+#### getRequestLogsByOrderNumber
 
-**Description:** Retrieves logs from Azure Log Analytics Workspace that contain the specified order number in the request name, URL, or custom dimensions.
+**Description:** Retrieves request logs from Azure Log Analytics Workspace that contain the specified order number in the request name, URL, or custom dimensions.
 
 **Parameters:**
 - `orderNumber` (required): The order number to search for in the logs

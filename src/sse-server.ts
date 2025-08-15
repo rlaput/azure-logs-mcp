@@ -1,7 +1,7 @@
 import "dotenv/config";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
-import { getLogsByOrderNumber, healthCheck } from "./appinsights";
+import { getRequestLogsByOrderNumber, healthCheck } from "./appinsights";
 import { rateLimiter, createLogger, RateLimiter } from "./utils";
 import {
   ValidationError as ValidationErrorClass,
@@ -103,11 +103,11 @@ function createMcpServer(): McpServer {
 
   // Register the Azure logs tool using the modern API
   server.registerTool(
-    "getLogsByOrderNumber",
+    "getRequestLogsByOrderNumber",
     {
-      title: "Get Logs by Order Number",
+      title: "Get Request Logs by Order Number",
       description:
-        "Retrieves logs from Azure Application Insights by order number. Searches through request logs containing the order number in name, URL, or custom dimensions.",
+        "Retrieves request logs from Azure Application Insights by order number. Searches through request logs containing the order number in name, URL, or custom dimensions.",
       inputSchema: {
         orderNumber: z
           .string()
@@ -139,12 +139,12 @@ function createMcpServer(): McpServer {
       }
 
       try {
-        logger.info("Executing getLogsByOrderNumber", {
+        logger.info("Executing getRequestLogsByOrderNumber", {
           orderNumber: "[REDACTED]",
           clientId,
         });
 
-        const logs = await getLogsByOrderNumber(orderNumber);
+        const logs = await getRequestLogsByOrderNumber(orderNumber);
         const resultCount = logs.tables?.[0]?.rows?.length || 0;
 
         logger.info(
@@ -165,7 +165,7 @@ function createMcpServer(): McpServer {
           ],
         };
       } catch (error) {
-        const sanitizedError = sanitizeError(error, "getLogsByOrderNumber");
+        const sanitizedError = sanitizeError(error, "getRequestLogsByOrderNumber");
         logger.error("Tool execution failed", {
           error: sanitizedError,
           clientId,
@@ -292,7 +292,7 @@ async function main(): Promise<void> {
           health: "/health",
           mcp: "/mcp",
         },
-        tools: ["getLogsByOrderNumber"],
+        tools: ["getRequestLogsByOrderNumber"],
       });
     });
 
@@ -303,7 +303,7 @@ async function main(): Promise<void> {
       logger.info(`  - Root: http://localhost:${port}/`);
       logger.info(`  - MCP: http://localhost:${port}/mcp`);
       logger.info(`  - Health: http://localhost:${port}/health`);
-      logger.info("Tool available: getLogsByOrderNumber");
+      logger.info("Tool available: getRequestLogsByOrderNumber");
       logger.info("Using McpServer API with Streamable HTTP transport");
     });
 

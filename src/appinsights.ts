@@ -100,14 +100,14 @@ function createKustoQuery(sanitizedOrderNumber: string): string {
 }
 
 /**
- * Retrieves logs from Azure Application Insights by order number
+ * Retrieves request logs from Azure Application Insights by order number
  * @param orderNumber - The order number to search for in the logs
  * @returns Promise resolving to the query results from Application Insights
  * @throws ValidationError for invalid input
  * @throws ConfigurationError for missing environment variables
  * @throws QueryError for Azure query failures
  */
-export async function getLogsByOrderNumber(orderNumber: string): Promise<QueryResult> {
+export async function getRequestLogsByOrderNumber(orderNumber: string): Promise<QueryResult> {
   try {
     // Validate and sanitize input
     const validatedOrderNumber = validateOrderNumber(orderNumber);
