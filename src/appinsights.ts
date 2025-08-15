@@ -92,11 +92,10 @@ function createKustoQuery(sanitizedOrderNumber: string): string {
   return `
     let searchTerm = "${sanitizedOrderNumber}";
     union isfuzzy=true AppRequests
-    | where TimeGenerated >= ago(30d)
     | where Url contains searchTerm or tostring(Properties) contains searchTerm or Name contains searchTerm
     | project TimeGenerated, Name, Url, ResultCode, DurationMs, Properties
     | order by TimeGenerated desc
-    | limit 100
+    | limit 50
   `;
 }
 
@@ -134,7 +133,7 @@ export async function getLogsByOrderNumber(orderNumber: string): Promise<QueryRe
     const queryResult = await logsQueryClient.queryWorkspace(
       config.AZURE_MONITOR_WORKSPACE_ID,
       kustoQuery,
-      { duration: 'PT30M' } // 30 minute timeout
+      { duration: "P30D" } // 30-day timespan
     );
 
     return queryResult as unknown as QueryResult;
