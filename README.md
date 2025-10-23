@@ -126,6 +126,18 @@ Run the server in development mode with hot reloading:
 npm run dev
 ```
 
+Run the SSE server in development mode:
+
+```bash
+npm run dev:sse
+```
+
+Run with MCP inspector for debugging:
+
+```bash
+npm run dev:inspector
+```
+
 ### Production Mode
 
 Build and start the server:
@@ -147,6 +159,12 @@ Lint the code:
 
 ```bash
 npm run lint
+```
+
+Format the code:
+
+```bash
+npm run format
 ```
 
 Clean build artifacts:
@@ -314,18 +332,23 @@ The server includes comprehensive error handling:
 ### Runtime Dependencies
 
 - **@azure/identity**: Azure authentication library
-- **@azure/monitor-query**: Azure Monitor query client
+- **@azure/monitor-query-logs**: Azure Monitor logs query client
 - **@modelcontextprotocol/sdk**: Official MCP SDK
+- **cors**: Cross-Origin Resource Sharing middleware
 - **dotenv**: Environment variable management
+- **express**: Fast, unopinionated web framework for Node.js
 - **zod**: Runtime type validation and parsing
 
 ### Development Dependencies
 
 - **typescript**: TypeScript compiler and language support
+- **@types/cors**: TypeScript definitions for CORS
+- **@types/express**: TypeScript definitions for Express
 - **@types/node**: Node.js type definitions
 - **tsx**: TypeScript execution for development
 - **eslint**: Code linting and style enforcement
-- **@typescript-eslint/**: TypeScript-specific ESLint rules
+- **@typescript-eslint/eslint-plugin**: TypeScript-specific ESLint rules
+- **@typescript-eslint/parser**: TypeScript parser for ESLint
 - **rimraf**: Cross-platform file deletion utility
 
 ## Project Structure
@@ -333,16 +356,29 @@ The server includes comprehensive error handling:
 ```
 azure-logs-mcp/
 ├── src/                    # TypeScript source files
-│   ├── index.ts           # Main server entry point
+│   ├── index.ts           # Main server entry point and transport mode selector
 │   ├── appinsights.ts     # Azure Log Analytics Workspace integration
+│   ├── http-server.ts     # HTTP server utilities for SSE mode
+│   ├── server-common.ts   # Common server functionality and tools
+│   ├── sse-server.ts      # Server-Sent Events (SSE) transport mode
+│   ├── stdio-server.ts    # Standard I/O transport mode
 │   ├── types.ts           # Type definitions and schemas
 │   └── utils.ts           # Utility functions (logging, rate limiting)
-├── dist/                  # Compiled JavaScript output
-├── package.json           # Project configuration and dependencies
-├── tsconfig.json          # TypeScript configuration
-├── .eslintrc.json         # ESLint configuration
+├── dist/                  # Compiled JavaScript output (generated)
+├── .containerignore       # Container build ignore patterns
 ├── .env.example           # Environment variables template
-└── README.md              # This file
+├── .eslintrc.json         # ESLint configuration
+├── .gitignore             # Git ignore patterns
+├── .prettierrc            # Prettier code formatting configuration
+├── Containerfile          # OCI-compliant container build instructions
+├── DEPLOYMENT.md          # Detailed deployment instructions
+├── IMPLEMENTATION_GUIDE.md # Implementation and development guide
+├── LICENSE                # Project license
+├── OCI-COMPLIANCE.md      # Open Container Initiative compliance details
+├── package.json           # Project configuration and dependencies
+├── package-lock.json      # Locked dependency versions
+├── README.md              # This file
+└── tsconfig.json          # TypeScript configuration
 ```
 
 ## Environment Variables
@@ -407,24 +443,32 @@ Log levels:
 
 ```bash
 # Development
-npm run dev          # Run stdio mode in development
-npm run dev:sse      # Run SSE mode in development
+npm run dev              # Run stdio mode in development
+npm run dev:sse          # Run SSE mode in development
+npm run dev:inspector    # Run with MCP inspector for debugging
 
 # Production
-npm run start        # Run stdio mode in production
-npm run start:sse    # Run SSE mode in production
+npm run start            # Run stdio mode in production
+npm run start:sse        # Run SSE mode in production
+
+# Build and Quality
+npm run build            # Compile TypeScript to JavaScript
+npm run clean            # Clean build artifacts
+npm run type-check       # Type check without emitting files
+npm run lint             # Lint and fix TypeScript files
+npm run format           # Format code with Prettier
 
 # Container (OCI-compliant, works with any runtime)
-npm run container:build    # Build with Podman (recommended)
-npm run container:run      # Run with Podman
+npm run container:build  # Build with Podman (recommended)
+npm run container:run    # Run with Podman
 
 # Docker (traditional)
-npm run docker:build    # Build Docker image
-npm run docker:run      # Run container with .env file
+npm run docker:build     # Build Docker image
+npm run docker:run       # Run container with .env file
 
 # Podman (explicit)
-npm run podman:build    # Build with Podman
-npm run podman:run      # Run with Podman
+npm run podman:build     # Build with Podman
+npm run podman:run       # Run with Podman
 ```
 
 ### SSE Mode Features
