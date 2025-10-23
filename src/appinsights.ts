@@ -102,10 +102,10 @@ function validateEnvironment(
 function createKustoQuery(sanitizedOrderNumber: string, limit: number): string {
   return `
     let searchTerm = "${sanitizedOrderNumber}";
-    union isfuzzy=true AppRequests
-    | where Url contains searchTerm or tostring(Properties) contains searchTerm or Name contains searchTerm
-    | project TimeGenerated, Name, Url, ResultCode, DurationMs, Properties
-    | order by TimeGenerated desc
+    union isfuzzy=true AppRequests, AppDependencies
+    | where Url has searchTerm or tostring(Properties) has searchTerm or Name has searchTerm
+    | project TimeGeneratedUtc, Name, Url, ResultCode, DurationMs, RequestBody=Properties["Request-Body"], ResponseBody=Properties["Response-Body"]
+    | order by TimeGeneratedUtc desc
     | limit ${limit}
   `;
 }
