@@ -104,7 +104,7 @@ function createKustoQuery(sanitizedOrderNumber: string, limit: number): string {
     let searchTerm = "${sanitizedOrderNumber}";
     union isfuzzy=true AppRequests, AppDependencies
     | where Url has searchTerm or tostring(Properties) has searchTerm or Name has searchTerm
-    | project TimeGeneratedUtc, Name, Url, ResultCode, DurationMs, RequestBody=Properties["Request-Body"], ResponseBody=Properties["Response-Body"]
+    | project TimeGeneratedUtc=TimeGenerated, Name, Url, ResultCode, DurationMs, RequestBody=Properties["Request-Body"], ResponseBody=Properties["Response-Body"]
     | order by TimeGeneratedUtc desc
     | limit ${limit}
   `;
