@@ -2,6 +2,10 @@
 
 A TypeScript-based MCP (Model Context Protocol) server that provides tools to fetch logs from Azure Log Analytics Workspace based on order numbers. This service queries Azure Monitor logs using the Azure SDK and exposes the functionality through MCP tools for use with compatible clients.
 
+<a href="https://glama.ai/mcp/servers/@rlaput/azure-logs-mcp">
+  <img width="380" height="200" src="https://glama.ai/mcp/servers/@rlaput/azure-logs-mcp/badge" alt="Azure Logs MCP server" />
+</a>
+
 ## Table of Contents
 
 - [Features](#features)
