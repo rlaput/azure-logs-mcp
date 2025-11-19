@@ -82,16 +82,16 @@ if (!rateLimiter.checkLimit(clientId)) {
 
 ```typescript
 server.registerTool(
-  'getRequestLogsByOrderNumber',
+  'searchLogs',
   {
-    title: 'Get Request Logs by Order Number',
-    description: 'Retrieves request logs from Azure Log Analytics Workspace',
+    title: 'Search Logs',
+    description: 'Searches request logs from Azure Log Analytics Workspace',
     inputSchema: {
-      orderNumber: z
+      searchTerm: z
         .string()
         .min(1)
-        .max(50)
-        .regex(/^[A-Za-z0-9\-_]+$/),
+        .max(100)
+        .regex(/^[A-Za-z0-9\-_.]+$/),
       limit: z.number().int().min(1).max(1000).default(50),
       duration: z
         .string()

@@ -23,39 +23,39 @@ function sanitizeInput(input: string): string {
   const sanitized = input.replace(/[^\w\-.]/g, '');
 
   if (sanitized.length === 0) {
-    throw new ValidationErrorClass('Invalid order number format');
+    throw new ValidationErrorClass('Invalid search term format');
   }
 
-  if (sanitized.length > 50) {
-    throw new ValidationErrorClass('Order number too long');
+  if (sanitized.length > 100) {
+    throw new ValidationErrorClass('Search term too long');
   }
 
   return sanitized;
 }
 
 /**
- * Validates order number format
- * @param orderNumber - The order number to validate
- * @returns The validated order number
- * @throws ValidationError if order number is invalid
+ * Validates search term format
+ * @param searchTerm - The search term to validate
+ * @returns The validated search term
+ * @throws ValidationError if search term is invalid
  */
-function validateOrderNumber(orderNumber: string): string {
-  if (!orderNumber || typeof orderNumber !== 'string') {
+function validateSearchTerm(searchTerm: string): string {
+  if (!searchTerm || typeof searchTerm !== 'string') {
     throw new ValidationErrorClass(
-      'Order number is required and must be a string',
+      'Search term is required and must be a string',
     );
   }
 
-  const trimmed = orderNumber.trim();
+  const trimmed = searchTerm.trim();
   if (trimmed.length === 0) {
-    throw new ValidationErrorClass('Order number cannot be empty');
+    throw new ValidationErrorClass('Search term cannot be empty');
   }
 
-  // Basic format validation - adjust regex based on your order number format
-  const orderNumberRegex = /^[A-Za-z0-9\-_]{1,50}$/;
-  if (!orderNumberRegex.test(trimmed)) {
+  // Basic format validation - adjust regex based on your search term format
+  const searchTermRegex = /^[A-Za-z0-9\-_.]+$/;
+  if (!searchTermRegex.test(trimmed)) {
     throw new ValidationErrorClass(
-      'Invalid order number format. Only alphanumeric characters, hyphens, and underscores are allowed.',
+      'Invalid search term format. Only alphanumeric characters, hyphens, underscores, and dots are allowed.',
     );
   }
 
@@ -94,14 +94,14 @@ function validateEnvironment(
 }
 
 /**
- * Creates a Kusto query for searching logs by order number
- * @param sanitizedOrderNumber - The sanitized order number to search for
+ * Creates a Kusto query for searching logs by search term
+ * @param sanitizedSearchTerm - The sanitized search term to search for
  * @param limit - Maximum number of results to return
  * @returns The Kusto query string
  */
-function createKustoQuery(sanitizedOrderNumber: string, limit: number): string {
+function createKustoQuery(sanitizedSearchTerm: string, limit: number): string {
   return `
-    let searchTerm = "${sanitizedOrderNumber}";
+    let searchTerm = "${sanitizedSearchTerm}";
     union isfuzzy=true AppRequests, AppDependencies
     | where Url has searchTerm or tostring(Properties) has searchTerm or Name has searchTerm
     | project TimeGeneratedUtc=TimeGenerated, Name, Url, ResultCode, DurationMs, RequestBody=Properties["Request-Body"], ResponseBody=Properties["Response-Body"]
@@ -111,8 +111,8 @@ function createKustoQuery(sanitizedOrderNumber: string, limit: number): string {
 }
 
 /**
- * Retrieves request logs from Azure Application Insights by order number
- * @param orderNumber - The order number to search for in the logs
+ * Retrieves request logs from Azure Application Insights by search term
+ * @param searchTerm - The term to search for in the logs
  * @param limit - Maximum number of results to return (default: 50)
  * @param duration - Time range for the query (default: "P7D" for 7 days)
  * @returns Promise resolving to the query results from Application Insights
@@ -120,15 +120,15 @@ function createKustoQuery(sanitizedOrderNumber: string, limit: number): string {
  * @throws ConfigurationError for missing environment variables
  * @throws QueryError for Azure query failures
  */
-export async function getRequestLogsByOrderNumber(
-  orderNumber: string,
+export async function searchLogs(
+  searchTerm: string,
   limit: number = 50,
   duration: string = 'P7D',
 ): Promise<QueryResult> {
   try {
     // Validate and sanitize input
-    const validatedOrderNumber = validateOrderNumber(orderNumber);
-    const sanitizedOrderNumber = sanitizeInput(validatedOrderNumber);
+    const validatedSearchTerm = validateSearchTerm(searchTerm);
+    const sanitizedSearchTerm = sanitizeInput(validatedSearchTerm);
 
     // Validate environment configuration
     const config = validateEnvironment(process.env);
@@ -144,7 +144,7 @@ export async function getRequestLogsByOrderNumber(
     const logsQueryClient = new LogsQueryClient(credential);
 
     // Create the Kusto query
-    const kustoQuery = createKustoQuery(sanitizedOrderNumber, limit);
+    const kustoQuery = createKustoQuery(sanitizedSearchTerm, limit);
 
     // Execute the query against the Application Insights workspace
     const queryResult = await logsQueryClient.queryWorkspace(
@@ -158,7 +158,7 @@ export async function getRequestLogsByOrderNumber(
     // Log error details for debugging but don't expose sensitive information
     console.error('Error querying Application Insights:', {
       message: error instanceof Error ? error.message : 'Unknown error',
-      orderNumber: '[REDACTED]',
+      searchTerm: '[REDACTED]',
       timestamp: new Date().toISOString(),
       type: error instanceof Error ? error.constructor.name : 'Unknown',
     });

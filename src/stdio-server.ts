@@ -29,7 +29,7 @@ export async function startStdioServer(): Promise<void> {
     const transport = new StdioServerTransport();
 
     logger.info('Azure Logs MCP Server starting...');
-    logger.info('Tool available: getRequestLogsByOrderNumber');
+    logger.info('Tool available: searchLogs');
     logger.info('Transport: stdio');
 
     await server.connect(transport);

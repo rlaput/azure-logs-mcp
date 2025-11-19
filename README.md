@@ -1,6 +1,6 @@
 # Azure Logs MCP
 
-A TypeScript-based MCP (Model Context Protocol) server that provides tools to fetch logs from Azure Log Analytics Workspace based on order numbers. This service queries Azure Monitor logs using the Azure SDK and exposes the functionality through MCP tools for use with compatible clients.
+A TypeScript-based MCP (Model Context Protocol) server that provides tools to fetch logs from Azure Log Analytics Workspace based on search terms (e.g., order numbers, transaction IDs). This service queries Azure Monitor logs using the Azure SDK and exposes the functionality through MCP tools for use with compatible clients.
 
 ## Table of Contents
 
@@ -24,7 +24,7 @@ A TypeScript-based MCP (Model Context Protocol) server that provides tools to fe
 - [MCP Server Usage](#mcp-server-usage)
   - [Server Connection](#server-connection)
   - [Available Tools](#available-tools)
-    - [getRequestLogsByOrderNumber](#getrequestlogsbyordernumber)
+    - [searchLogs](#searchlogs)
 - [Error Handling](#error-handling)
   - [Error Types](#error-types)
   - [Security](#security)
@@ -250,17 +250,17 @@ npm run dev
 
 ### Available Tools
 
-#### getRequestLogsByOrderNumber
+#### searchLogs
 
-**Description:** Retrieves request logs from Azure Log Analytics Workspace that contain the specified order number in the request name, URL, or custom dimensions.
+**Description:** Searches request logs from Azure Log Analytics Workspace that contain the specified search term in the request name, URL, or custom dimensions.
 
 **Parameters:**
 
-- `orderNumber` (required): The order number to search for in the logs
+- `searchTerm` (required): The term to search for in the logs (e.g., order number, transaction ID)
   - Type: string
-  - Format: Alphanumeric characters, hyphens, and underscores only
-  - Length: 1-50 characters
-  - Pattern: `^[A-Za-z0-9\-_]+$`
+  - Format: Alphanumeric characters, hyphens, underscores, and dots only
+  - Length: 1-100 characters
+  - Pattern: `^[A-Za-z0-9\-_.]+$`
 - `limit` (optional): Maximum number of results to return
   - Type: number
   - Range: 1-1000
@@ -281,7 +281,7 @@ npm run dev
 **Query Details:**
 
 - Searches logs from the specified duration (default: last 7 days)
-- Looks for the order number in request names, URLs, and custom dimensions
+- Looks for the search term in request names, URLs, and custom dimensions
 - Returns up to the specified limit of results ordered by timestamp (most recent first)
 - Query timeout is set to 30 minutes
 - Uses parameterized queries to prevent injection attacks

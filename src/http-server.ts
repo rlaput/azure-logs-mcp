@@ -120,7 +120,7 @@ export async function startHttpServer(): Promise<void> {
           health: '/health',
           mcp: '/mcp',
         },
-        tools: ['getRequestLogsByOrderNumber'],
+        tools: ['searchLogs'],
       });
     });
 
@@ -131,7 +131,7 @@ export async function startHttpServer(): Promise<void> {
       logger.info(`  - Root: http://localhost:${port}/`);
       logger.info(`  - MCP: http://localhost:${port}/mcp`);
       logger.info(`  - Health: http://localhost:${port}/health`);
-      logger.info('Tool available: getRequestLogsByOrderNumber');
+      logger.info('Tool available: searchLogs');
       logger.info('Using McpServer API with Streamable HTTP transport');
     });
 

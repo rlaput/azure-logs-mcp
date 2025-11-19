@@ -101,17 +101,17 @@ export interface ToolDefinition {
 }
 
 // Validation schemas
-export const GetLogsByOrderNumberSchema = z.object({
-  orderNumber: z
+export const SearchLogsSchema = z.object({
+  searchTerm: z
     .string()
-    .min(1, 'Order number cannot be empty')
-    .max(50, 'Order number too long')
+    .min(1, 'Search term cannot be empty')
+    .max(100, 'Search term too long')
     .regex(
-      /^[A-Za-z0-9\-_]+$/,
-      'Invalid order number format. Only alphanumeric characters, hyphens, and underscores are allowed.',
+      /^[A-Za-z0-9\-_.]+$/,
+      'Invalid search term format. Only alphanumeric characters, hyphens, underscores, and dots are allowed.',
     )
     .describe(
-      'The order number to search for in the Azure Application Insights logs',
+      'The term to search for in the Azure Application Insights logs (e.g., order number, transaction ID, etc.)',
     ),
   limit: z
     .number()
@@ -132,8 +132,8 @@ export const GetLogsByOrderNumberSchema = z.object({
     ),
 });
 
-export type GetLogsByOrderNumberInput = z.infer<
-  typeof GetLogsByOrderNumberSchema
+export type SearchLogsInput = z.infer<
+  typeof SearchLogsSchema
 >;
 
 // Error types

@@ -1,11 +1,11 @@
 import 'dotenv/config';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { getRequestLogsByOrderNumber } from './appinsights';
+import { searchLogs } from './appinsights';
 import { rateLimiter, createLogger, RateLimiter } from './utils';
 import {
   ValidationError as ValidationErrorClass,
   ConfigurationError as ConfigurationErrorClass,
-  GetLogsByOrderNumberSchema,
+  SearchLogsSchema,
 } from './types';
 
 /**
@@ -59,8 +59,8 @@ export function sanitizeError(error: unknown, context = ''): string {
     error instanceof ValidationErrorClass ||
     error instanceof ConfigurationErrorClass ||
     (error instanceof Error &&
-      (error.message.includes('Invalid order number') ||
-        error.message.includes('Order number') ||
+      (error.message.includes('Invalid search term') ||
+        error.message.includes('Search term') ||
         error.message.includes('validation')))
   ) {
     return errorMessage;
@@ -90,19 +90,19 @@ export async function performStartupChecks(): Promise<void> {
 }
 
 /**
- * Creates the tool handler for getRequestLogsByOrderNumber
+ * Creates the tool handler for searchLogs
  * @param serverType - Type of server for logging context
  * @returns Tool handler function
  */
-export function createGetLogsToolHandler(serverType: string) {
+export function createSearchLogsToolHandler(serverType: string) {
   const logger = createLogger(`${serverType}-tool`);
 
   return async ({
-    orderNumber,
+    searchTerm,
     limit = 50,
     duration = 'P7D',
   }: {
-    orderNumber: string;
+    searchTerm: string;
     limit?: number;
     duration?: string;
   }) => {
@@ -122,13 +122,13 @@ export function createGetLogsToolHandler(serverType: string) {
     }
 
     try {
-      logger.info('Executing getRequestLogsByOrderNumber', {
-        orderNumber: '[REDACTED]',
+      logger.info('Executing searchLogs', {
+        searchTerm: '[REDACTED]',
         clientId: serverType === 'sse' ? clientId : undefined,
       });
 
-      const logs = await getRequestLogsByOrderNumber(
-        orderNumber,
+      const logs = await searchLogs(
+        searchTerm,
         limit,
         duration,
       );
@@ -146,7 +146,7 @@ export function createGetLogsToolHandler(serverType: string) {
         content: [
           {
             type: 'text' as const,
-            text: `Successfully retrieved ${resultCount} log entries for order number: ${orderNumber}\n\n${JSON.stringify(
+            text: `Successfully retrieved ${resultCount} log entries for search term: ${searchTerm}\n\n${JSON.stringify(
               logs,
               null,
               2,
@@ -157,7 +157,7 @@ export function createGetLogsToolHandler(serverType: string) {
     } catch (error) {
       const sanitizedError = sanitizeError(
         error,
-        'getRequestLogsByOrderNumber',
+        'searchLogs',
       );
       logger.error('Tool execution failed', {
         error: sanitizedError,
@@ -186,15 +186,15 @@ export function registerAzureLogsTool(
   server: McpServer,
   serverType: string,
 ): void {
-  const toolHandler = createGetLogsToolHandler(serverType);
+  const toolHandler = createSearchLogsToolHandler(serverType);
 
   server.registerTool(
-    'getRequestLogsByOrderNumber',
+    'searchLogs',
     {
-      title: 'Get Request Logs by Order Number',
+      title: 'Search Logs',
       description:
-        'Retrieves request logs from Azure Application Insights by order number. Searches through request logs containing the order number in name, URL, or custom dimensions.',
-      inputSchema: GetLogsByOrderNumberSchema.shape,
+        'Searches request logs from Azure Application Insights by a search term (e.g., order number, transaction ID). Searches through request logs containing the term in name, URL, or custom dimensions.',
+      inputSchema: SearchLogsSchema.shape,
     },
     toolHandler,
   );
