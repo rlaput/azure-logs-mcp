@@ -1,0 +1,17 @@
+{
+  "name": "azure-logs-lambda",
+  "version": "1.0.0",
+  "description": "AWS Lambda for Azure Logs",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@azure/identity": "^4.11.1",
+    "@azure/monitor-query-logs": "^1.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  }
+}

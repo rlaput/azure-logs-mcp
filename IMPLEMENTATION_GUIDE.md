@@ -99,7 +99,7 @@ server.registerTool(
         .default('P7D'),
     },
   },
-  async ({ orderNumber, limit = 50, duration = 'P7D' }) => {
+  async ({ searchTerm, limit = 50, duration = 'P7D' }) => {
     // Tool implementation with configurable limit and duration
   },
 );
@@ -138,10 +138,10 @@ server.registerTool(
 
 ```typescript
 // Zod schema validation with new parameters
-orderNumber: z.string()
-  .min(1, "Order number cannot be empty")
-  .max(50, "Order number too long")
-  .regex(/^[A-Za-z0-9\-_]+$/, "Invalid format"),
+searchTerm: z.string()
+  .min(1, "Search term cannot be empty")
+  .max(100, "Search term too long")
+  .regex(/^[A-Za-z0-9\-_.]+$/, "Invalid format"),
 limit: z.number()
   .int("Limit must be an integer")
   .min(1, "Limit must be at least 1")
